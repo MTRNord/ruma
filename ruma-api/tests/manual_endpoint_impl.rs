@@ -5,8 +5,8 @@ use std::convert::TryFrom;
 use http::{header::CONTENT_TYPE, method::Method};
 use ruma_api::{
     error::{FromHttpRequestError, FromHttpResponseError, IntoHttpError, ServerError, Void},
-    AuthScheme, EndpointError, IncomingRequest, IncomingResponse, Metadata, OutgoingRequest,
-    OutgoingResponse,
+    AuthScheme, Authentication, EndpointError, IncomingRequest, IncomingResponse, Metadata,
+    OutgoingRequest, OutgoingResponse,
 };
 use ruma_identifiers::{RoomAliasId, RoomId};
 use ruma_serde::Outgoing;
@@ -68,7 +68,7 @@ impl IncomingRequest for Request {
 
     fn try_from_http_request<T: AsRef<[u8]>>(
         request: http::Request<T>,
-    ) -> Result<Self, FromHttpRequestError> {
+    ) -> Result<(Self, Authentication), FromHttpRequestError> {
         let path_segments: Vec<&str> = request.uri().path()[1..].split('/').collect();
         let room_alias = {
             let decoded =
@@ -79,7 +79,7 @@ impl IncomingRequest for Request {
 
         let request_body: RequestBody = serde_json::from_slice(request.body().as_ref())?;
 
-        Ok(Request { room_id: request_body.room_id, room_alias })
+        Ok((Request { room_id: request_body.room_id, room_alias }, Authentication::None))
     }
 }
 

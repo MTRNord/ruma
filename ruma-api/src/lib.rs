@@ -198,6 +198,8 @@ use ruma_identifiers::UserId;
 /// ```
 pub use ruma_api_macros::ruma_api;
 
+#[doc(hidden)]
+pub mod auth;
 pub mod error;
 /// This module is used to support the generated code from ruma-api-macros.
 /// It is not considered part of ruma-api's public API.
@@ -209,6 +211,10 @@ pub mod exports {
     pub use serde;
     pub use serde_json;
 }
+
+pub use auth::{
+    AuthScheme, Authentication, IncomingNonAuthRequest, MatrixAuthHeader, OutgoingNonAuthRequest,
+};
 
 use error::{FromHttpRequestError, FromHttpResponseError, IntoHttpError};
 
@@ -301,7 +307,7 @@ pub trait IncomingRequest: Sized {
     /// Tries to turn the given `http::Request` into this request type.
     fn try_from_http_request<T: AsRef<[u8]>>(
         req: http::Request<T>,
-    ) -> Result<Self, FromHttpRequestError>;
+    ) -> Result<(Self, Authentication), FromHttpRequestError>;
 }
 
 /// A request type for a Matrix API endpoint, used for sending responses.
@@ -322,32 +328,6 @@ pub trait EndpointError: OutgoingResponse + StdError + Sized + 'static {
     fn try_from_http_response<T: AsRef<[u8]>>(
         response: http::Response<T>,
     ) -> Result<Self, error::ResponseDeserializationError>;
-}
-
-/// Marker trait for requests that don't require authentication, for the client side.
-pub trait OutgoingNonAuthRequest: OutgoingRequest {}
-
-/// Marker trait for requests that don't require authentication, for the server side.
-pub trait IncomingNonAuthRequest: IncomingRequest {}
-
-/// Authentication scheme used by the endpoint.
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum AuthScheme {
-    /// No authentication is performed.
-    None,
-
-    /// Authentication is performed by including an access token in the `Authentication` http
-    /// header, or an `access_token` query parameter.
-    ///
-    /// It is recommended to use the header over the query parameter.
-    AccessToken,
-
-    /// Authentication is performed by including X-Matrix signatures in the request headers,
-    /// as defined in the federation API.
-    ServerSignatures,
-
-    /// Authentication is performed by setting the `access_token` query parameter.
-    QueryOnlyAccessToken,
 }
 
 /// Metadata about an API endpoint.

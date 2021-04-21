@@ -35,7 +35,6 @@ ruma_api! {
         pub optional_flag: Option<bool>,
     }
 }
-
 #[test]
 fn request_serde() {
     let req = Request {
@@ -48,7 +47,7 @@ fn request_serde() {
     };
 
     let http_req = req.clone().try_into_http_request("https://homeserver.tld", None).unwrap();
-    let req2 = Request::try_from_http_request(http_req).unwrap();
+    let (req2, _) = Request::try_from_http_request(http_req).unwrap();
 
     assert_eq!(req.hello, req2.hello);
     assert_eq!(req.world, req2.world);
