@@ -18,6 +18,7 @@ use crate::ServerName;
 /// );
 /// ```
 #[derive(Clone)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RoomId {
     pub(crate) full_id: Box<str>,
     pub(crate) colon_idx: NonZeroU8,

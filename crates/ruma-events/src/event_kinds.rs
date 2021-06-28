@@ -13,6 +13,7 @@ use crate::{
 
 /// A global account data event.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct GlobalAccountDataEvent<C: GlobalAccountDataEventContent> {
     /// Data specific to the event type.
     pub content: C,
@@ -20,6 +21,7 @@ pub struct GlobalAccountDataEvent<C: GlobalAccountDataEventContent> {
 
 /// A room account data event.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RoomAccountDataEvent<C: RoomAccountDataEventContent> {
     /// Data specific to the event type.
     pub content: C,
@@ -27,6 +29,7 @@ pub struct RoomAccountDataEvent<C: RoomAccountDataEventContent> {
 
 /// An ephemeral room event.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct EphemeralRoomEvent<C: EphemeralRoomEventContent> {
     /// Data specific to the event type.
     pub content: C,
@@ -37,6 +40,7 @@ pub struct EphemeralRoomEvent<C: EphemeralRoomEventContent> {
 
 /// An ephemeral room event without a `room_id`.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct SyncEphemeralRoomEvent<C: EphemeralRoomEventContent> {
     /// Data specific to the event type.
     pub content: C,
@@ -48,6 +52,7 @@ pub struct SyncEphemeralRoomEvent<C: EphemeralRoomEventContent> {
 /// the `event_id` field, a sorted list would be sorted lexicographically based on
 /// the event's `EventId`.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct MessageEvent<C: MessageEventContent> {
     /// Data specific to the event type.
     pub content: C,
@@ -74,6 +79,7 @@ pub struct MessageEvent<C: MessageEventContent> {
 /// the `event_id` field, a sorted list would be sorted lexicographically based on
 /// the event's `EventId`.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct SyncMessageEvent<C: MessageEventContent> {
     /// Data specific to the event type.
     pub content: C,
@@ -97,6 +103,7 @@ pub struct SyncMessageEvent<C: MessageEventContent> {
 /// the `event_id` field, a sorted list would be sorted lexicographically based on
 /// the event's `EventId`.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RedactedMessageEvent<C: RedactedMessageEventContent> {
     /// Data specific to the event type.
     pub content: C,
@@ -123,6 +130,7 @@ pub struct RedactedMessageEvent<C: RedactedMessageEventContent> {
 /// the `event_id` field, a sorted list would be sorted lexicographically based on
 /// the event's `EventId`.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RedactedSyncMessageEvent<C: RedactedMessageEventContent> {
     /// Data specific to the event type.
     // #[serde(default, skip_serializing_if = "is_zst")]
@@ -147,6 +155,7 @@ pub struct RedactedSyncMessageEvent<C: RedactedMessageEventContent> {
 /// the `event_id` field, a sorted list would be sorted lexicographically based on
 /// the event's `EventId`.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct StateEvent<C: StateEventContent> {
     /// Data specific to the event type.
     pub content: C,
@@ -182,6 +191,7 @@ pub struct StateEvent<C: StateEventContent> {
 /// the `event_id` field, a sorted list would be sorted lexicographically based on
 /// the event's `EventId`.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct SyncStateEvent<C: StateEventContent> {
     /// Data specific to the event type.
     pub content: C,
@@ -211,6 +221,7 @@ pub struct SyncStateEvent<C: StateEventContent> {
 /// A stripped-down state event, used for previews of rooms the user has been
 /// invited to.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct StrippedStateEvent<C: StateEventContent> {
     /// Data specific to the event type.
     pub content: C,
@@ -227,6 +238,7 @@ pub struct StrippedStateEvent<C: StateEventContent> {
 
 /// A minimal state event, used for creating a new room.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct InitialStateEvent<C: StateEventContent> {
     /// Data specific to the event type.
     pub content: C,
@@ -247,6 +259,7 @@ pub struct InitialStateEvent<C: StateEventContent> {
 /// the `event_id` field, a sorted list would be sorted lexicographically based on
 /// the event's `EventId`.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RedactedStateEvent<C: RedactedStateEventContent> {
     /// Data specific to the event type.
     pub content: C,
@@ -279,6 +292,7 @@ pub struct RedactedStateEvent<C: RedactedStateEventContent> {
 /// the `event_id` field, a sorted list would be sorted lexicographically based on
 /// the event's `EventId`.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RedactedSyncStateEvent<C: RedactedStateEventContent> {
     /// Data specific to the event type.
     // #[serde(default, skip_serializing_if = "is_zst")]
@@ -305,6 +319,7 @@ pub struct RedactedSyncStateEvent<C: RedactedStateEventContent> {
 
 /// A stripped-down redacted state event.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RedactedStrippedStateEvent<C: RedactedStateEventContent> {
     /// Data specific to the event type.
     pub content: C,
@@ -321,6 +336,7 @@ pub struct RedactedStrippedStateEvent<C: RedactedStateEventContent> {
 
 /// An event sent using send-to-device messaging.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ToDeviceEvent<C: ToDeviceEventContent> {
     /// Data specific to the event type.
     pub content: C,
@@ -331,6 +347,7 @@ pub struct ToDeviceEvent<C: ToDeviceEventContent> {
 
 /// The decrypted payload of an `m.olm.v1.curve25519-aes-sha2` event.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct DecryptedOlmV1Event<C: MessageEventContent> {
     /// Data specific to the event type.
     pub content: C,
@@ -350,6 +367,7 @@ pub struct DecryptedOlmV1Event<C: MessageEventContent> {
 
 /// Public keys used for an `m.olm.v1.curve25519-aes-sha2` event.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct OlmV1Keys {
     /// An ed25519 key.
     ed25519: String,
@@ -357,6 +375,7 @@ pub struct OlmV1Keys {
 
 /// The decrypted payload of an `m.megolm.v1.aes-sha2` event.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct DecryptedMegolmV1Event<C: MessageEventContent> {
     /// Data specific to the event type.
     pub content: C,

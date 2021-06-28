@@ -18,6 +18,7 @@ pub type PowerLevelsEvent = StateEvent<PowerLevelsEventContent>;
 /// The payload for `PowerLevelsEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room.power_levels", kind = State)]
 pub struct PowerLevelsEventContent {
     /// The level required to ban a user.

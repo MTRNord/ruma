@@ -55,6 +55,7 @@ impl Response {
 /// Information about a user's device.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct UserDevice {
     /// The device ID.
     pub device_id: DeviceIdBox,

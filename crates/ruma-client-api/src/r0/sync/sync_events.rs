@@ -133,6 +133,7 @@ impl Response {
 
 /// A filter represented either as its full JSON definition or the ID of a saved filter.
 #[derive(Clone, Debug, Outgoing, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[allow(clippy::large_enum_variant)]
 #[serde(untagged)]
 pub enum Filter<'a> {
@@ -168,6 +169,7 @@ impl<'a> From<&'a str> for Filter<'a> {
 
 /// Updates to rooms.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Rooms {
     /// The rooms that the user has left or been banned from.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
@@ -213,6 +215,7 @@ impl Default for Rooms {
 
 /// Historical updates to left rooms.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct LeftRoom {
     /// The timeline of messages and state changes in the room up to the point when the user
     /// left.
@@ -259,6 +262,7 @@ impl Default for LeftRoom {
 
 /// Updates to joined rooms.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct JoinedRoom {
     /// Information about the room which clients may need to correctly render it
     /// to users.
@@ -328,6 +332,7 @@ impl Default for JoinedRoom {
 
 /// Unread notifications count.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct UnreadNotificationsCount {
     /// The number of unread notifications for this room with the highlight flag set.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -368,6 +373,7 @@ impl Default for UnreadNotificationsCount {
 
 /// Events in the room.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Timeline {
     /// True if the number of events returned was limited by the `limit` on the filter.
     ///
@@ -416,6 +422,7 @@ impl Default for Timeline {
 
 /// State events in the room.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct State {
     /// A list of state events.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -451,6 +458,7 @@ impl Default for State {
 
 /// The global private data created by this user.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct GlobalAccountData {
     /// A list of events.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -486,6 +494,7 @@ impl Default for GlobalAccountData {
 
 /// The private data that this user has attached to this room.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RoomAccountData {
     /// A list of events.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -521,6 +530,7 @@ impl Default for RoomAccountData {
 
 /// Ephemeral events not recorded in the timeline or state of the room.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Ephemeral {
     /// A list of events.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -556,6 +566,7 @@ impl Default for Ephemeral {
 
 /// Information about room for rendering to clients.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RoomSummary {
     /// Users which can be used to generate a room name if the room does not have
     /// one. Required if room name or canonical aliases are not set or empty.
@@ -608,6 +619,7 @@ impl Default for RoomSummary {
 
 /// Updates to the rooms that the user has been invited to.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct InvitedRoom {
     /// The state of a room that the user has been invited to.
     #[serde(default, skip_serializing_if = "InviteState::is_empty")]
@@ -643,6 +655,7 @@ impl Default for InvitedRoom {
 
 /// The state of a room that the user has been invited to.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct InviteState {
     /// A list of state events.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -678,6 +691,7 @@ impl Default for InviteState {
 
 /// Updates to the presence status of other users.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Presence {
     /// A list of events.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -713,6 +727,7 @@ impl Default for Presence {
 
 /// Messages sent dirrectly between devices.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ToDevice {
     /// A list of to-device events.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -748,6 +763,7 @@ impl Default for ToDevice {
 
 /// Information on E2E device udpates.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct DeviceLists {
     /// List of users who have updated their device identity keys or who now
     /// share an encrypted room with the client since the previous sync

@@ -32,6 +32,7 @@ ruma_api! {
 /// Get state events associated with a given key.
 #[derive(Clone, Debug, Outgoing)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[incoming_derive(!Deserialize)]
 pub struct Request<'a> {
     /// The room to look up the state for.

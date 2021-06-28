@@ -73,6 +73,7 @@
 #![warn(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
+extern crate arbitrary_cr as arbitrary;
 use std::{
     future::Future,
     sync::{Arc, Mutex},
@@ -109,10 +110,12 @@ pub type ResponseResult<C, R> =
 
 /// A client for the Matrix client-server API.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Client<C>(Arc<ClientData<C>>);
 
 /// Data contained in Client's Rc
 #[derive(Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct ClientData<C> {
     /// The URL of the homeserver to connect to.
     homeserver_url: String,

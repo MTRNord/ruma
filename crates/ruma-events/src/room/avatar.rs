@@ -16,6 +16,7 @@ pub type AvatarEvent = StateEvent<AvatarEventContent>;
 /// The payload for `AvatarEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(feature = "unstable-pre-spec", derive(Default))]
 #[ruma_event(type = "m.room.avatar", kind = State)]
 pub struct AvatarEventContent {
@@ -57,6 +58,7 @@ impl AvatarEventContent {
 /// Metadata about an image (specific to avatars).
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ImageInfo {
     /// The height of the image in pixels.
     #[serde(rename = "h", skip_serializing_if = "Option::is_none")]

@@ -18,6 +18,7 @@ use serde_json::Value as JsonValue;
 /// `PublicRoomsChunk::from` / `.into()`.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct PublicRoomsChunk {
     /// Aliases of the room.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -66,6 +67,7 @@ pub struct PublicRoomsChunk {
 /// This struct will not be updated even if additional fields are added to `PublicRoomsChunk` in a
 /// new (non-breaking) release of the Matrix specification.
 #[derive(Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[allow(clippy::exhaustive_structs)]
 pub struct PublicRoomsChunkInit {
     /// The number of members joined to the room.
@@ -105,6 +107,7 @@ impl From<PublicRoomsChunkInit> for PublicRoomsChunk {
 /// A filter for public rooms lists
 #[derive(Clone, Debug, Default, Outgoing, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[incoming_derive(Default)]
 pub struct Filter<'a> {
     /// A string to search for in the room metadata, e.g. name, topic, canonical alias etc.
@@ -128,6 +131,7 @@ impl Filter<'_> {
 /// homeserver from which to request rooms.
 #[derive(Clone, Debug, PartialEq, Eq, Outgoing)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[incoming_derive(Clone, PartialEq, Eq, !Deserialize)]
 pub enum RoomNetwork<'a> {
     /// Return rooms from the Matrix network.
@@ -178,6 +182,7 @@ impl<'de> Deserialize<'de> for IncomingRoomNetwork {
     }
 }
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct RoomNetworkVisitor;
 impl<'de> Visitor<'de> for RoomNetworkVisitor {
     type Value = IncomingRoomNetwork;

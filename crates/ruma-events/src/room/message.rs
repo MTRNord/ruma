@@ -30,6 +30,7 @@ pub type MessageEvent = crate::MessageEvent<MessageEventContent>;
 /// The payload for `MessageEvent`.
 #[derive(Clone, Debug, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room.message", kind = Message)]
 pub struct MessageEventContent {
     /// A key which identifies the type of message being sent.
@@ -141,6 +142,7 @@ impl MessageEventContent {
 
 /// The content that is specific to each message type variant.
 #[derive(Clone, Debug, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(untagged)]
 pub enum MessageType {
     /// An audio message.
@@ -265,6 +267,7 @@ impl From<MessageType> for MessageEventContent {
 /// Currently used for replies and editing (message replacement).
 #[derive(Clone, Debug)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum Relation {
     /// An `m.in_reply_to` relation indicating that the event is a reply to another event.
     Reply {
@@ -281,6 +284,7 @@ pub enum Relation {
 /// Information about the event a "rich reply" is replying to.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct InReplyTo {
     /// The event being replied to.
     pub event_id: EventId,
@@ -298,6 +302,7 @@ impl InReplyTo {
 #[cfg(feature = "unstable-pre-spec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "unstable-pre-spec")))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Replacement {
     /// The ID of the event being replacing.
     pub event_id: EventId,
@@ -317,6 +322,7 @@ impl Replacement {
 /// The payload for an audio message.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "msgtype", rename = "m.audio")]
 pub struct AudioMessageEventContent {
     /// The textual representation of this message.
@@ -355,6 +361,7 @@ impl AudioMessageEventContent {
 /// Metadata about an audio clip.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct AudioInfo {
     /// The duration of the audio in milliseconds.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -379,6 +386,7 @@ impl AudioInfo {
 /// The payload for an emote message.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "msgtype", rename = "m.emote")]
 pub struct EmoteMessageEventContent {
     /// The emote action to perform.
@@ -414,6 +422,7 @@ impl EmoteMessageEventContent {
 /// The payload for a file message.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "msgtype", rename = "m.file")]
 pub struct FileMessageEventContent {
     /// A human-readable description of the file.
@@ -456,6 +465,7 @@ impl FileMessageEventContent {
 /// Metadata about a file.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct FileInfo {
     /// The mimetype of the file, e.g. "application/msword".
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -492,6 +502,7 @@ impl FileInfo {
 /// The payload for an image message.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "msgtype", rename = "m.image")]
 pub struct ImageMessageEventContent {
     /// A textual representation of the image.
@@ -531,6 +542,7 @@ impl ImageMessageEventContent {
 /// The payload for a location message.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "msgtype", rename = "m.location")]
 pub struct LocationMessageEventContent {
     /// A description of the location e.g. "Big Ben, London, UK", or some kind of content
@@ -555,6 +567,7 @@ impl LocationMessageEventContent {
 /// Thumbnail info associated with a location.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct LocationInfo {
     /// The URL to a thumbnail of the location being represented.
     ///
@@ -583,6 +596,7 @@ impl LocationInfo {
 /// The payload for a notice message.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "msgtype", rename = "m.notice")]
 pub struct NoticeMessageEventContent {
     /// The notice text.
@@ -618,6 +632,7 @@ impl NoticeMessageEventContent {
 /// The payload for a server notice message.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "msgtype", rename = "m.server_notice")]
 pub struct ServerNoticeMessageEventContent {
     /// A human-readable description of the notice.
@@ -648,6 +663,7 @@ impl ServerNoticeMessageEventContent {
 
 /// Types of server notices.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum ServerNoticeType {
     /// The server has exceeded some limit which requires the server administrator to intervene.
     #[ruma_enum(rename = "m.server_notice.usage_limit_reached")]
@@ -659,6 +675,7 @@ pub enum ServerNoticeType {
 
 /// Types of usage limits.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum LimitType {
     /// The server's number of active users in the last 30 days has exceeded the maximum.
@@ -676,6 +693,7 @@ pub enum LimitType {
 /// This type can hold an arbitrary string. To check for formats that are not available as a
 /// documented variant here, use its string representation, obtained through `.as_str()`.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum MessageFormat {
     /// HTML.
     #[ruma_enum(rename = "org.matrix.custom.html")]
@@ -695,6 +713,7 @@ impl MessageFormat {
 /// Common message event content fields for message types that have separate plain-text and
 /// formatted representations.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[allow(clippy::exhaustive_structs)]
 pub struct FormattedBody {
     /// The format used in the `formatted_body`.
@@ -729,6 +748,7 @@ impl FormattedBody {
 /// The payload for a text message.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "msgtype", rename = "m.text")]
 pub struct TextMessageEventContent {
     /// The body of the message.
@@ -770,6 +790,7 @@ impl TextMessageEventContent {
 /// The payload for a video message.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "msgtype", rename = "m.video")]
 pub struct VideoMessageEventContent {
     /// A description of the video, e.g. "Gangnam Style", or some kind of content description for
@@ -806,6 +827,7 @@ impl VideoMessageEventContent {
 
 /// Metadata about a video.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 pub struct VideoInfo {
     /// The duration of the video in milliseconds.
@@ -869,6 +891,7 @@ impl VideoInfo {
 #[cfg(feature = "unstable-pre-spec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "unstable-pre-spec")))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "msgtype", rename = "m.key.verification.request")]
 pub struct KeyVerificationRequestEventContent {
     /// A fallback message to alert users that their client does not support the key verification
@@ -906,6 +929,7 @@ impl KeyVerificationRequestEventContent {
 /// The payload for a custom message event.
 #[doc(hidden)]
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct CustomEventContent {
     /// A custom msgtype
     msgtype: String,

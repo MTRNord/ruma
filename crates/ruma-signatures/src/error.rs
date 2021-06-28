@@ -3,6 +3,7 @@ use thiserror::Error;
 
 /// `ruma-signature`'s error type, wraps a number of other error types.
 #[derive(Debug, Error)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[non_exhaustive]
 pub enum Error {
     /// [`JsonError`] wrapper.
@@ -28,6 +29,7 @@ pub enum Error {
 
 /// All errors related to JSON validation/parsing.
 #[derive(Debug, Error)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[non_exhaustive]
 pub enum JsonError {
     /// Signals that `target` is not of type `of_type` ([`JsonType`]).
@@ -109,6 +111,7 @@ impl JsonError {
 
 /// A JSON type enum for [`JsonError`] variants.
 #[derive(Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum JsonType {
     /// A JSON Object.
     Object,
@@ -131,6 +134,7 @@ pub enum JsonType {
 
 /// Errors relating to verification of events and signatures.
 #[derive(Debug, Error)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[non_exhaustive]
 pub enum VerificationError {
     /// For when a signature cannot be found for a `target`.
@@ -162,6 +166,7 @@ impl VerificationError {
 
 /// Errors relating to parsing of all sorts.
 #[derive(Debug, Error)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[non_exhaustive]
 pub enum ParseError {
     /// For user ID parsing errors.
@@ -253,6 +258,7 @@ impl ParseError {
 
 /// An error when trying to extract the algorithm and version from a key identifier.
 #[derive(Error, Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum SplitError {
     /// The signature's ID does not have exactly two components separated by a colon.
     #[error("malformed signature ID: expected exactly 2 segment separated by a colon, found {0}")]

@@ -23,6 +23,7 @@ use serde::Serialize;
 /// identity which has been invited to the room.
 #[derive(Clone, Debug, Outgoing, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ThirdPartySigned<'a> {
     /// The Matrix ID of the user who issued the invite.
     pub sender: &'a UserId,
@@ -57,6 +58,7 @@ impl<'a> ThirdPartySigned<'a> {
 #[derive(Clone, Debug, PartialEq, Outgoing, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 #[incoming_derive(PartialEq)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Invite3pid<'a> {
     /// Hostname and port of identity server to be used for account lookups.
     pub id_server: &'a str,
@@ -77,6 +79,7 @@ pub struct Invite3pid<'a> {
 /// (non-breaking) release of the Matrix specification.
 #[derive(Debug)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Invite3pidInit<'a> {
     /// Hostname and port of identity server to be used for account lookups.
     pub id_server: &'a str,

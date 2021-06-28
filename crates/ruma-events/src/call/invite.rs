@@ -13,6 +13,7 @@ pub type InviteEvent = MessageEvent<InviteEventContent>;
 /// The payload for `InviteEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.call.invite", kind = Message)]
 pub struct InviteEventContent {
     /// A unique identifier for the call.

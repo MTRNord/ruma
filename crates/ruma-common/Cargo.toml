@@ -18,6 +18,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 compat = []
 unstable-exhaustive-types = []
 unstable-pre-spec = []
+arbitrary = [ "arbitrary_cr", "ruma-identifiers/arbitrary", "ruma-serde/arbitrary" ]
 
 [dependencies]
 indexmap = { version = "1.6.2", features = ["serde-1"] }
@@ -28,6 +29,7 @@ serde = { version = "1.0.118", features = ["derive"] }
 serde_json = { version = "1.0.60", features = ["raw_value"] }
 tracing = "0.1.25"
 wildmatch = "2.0.0"
+arbitrary_cr = { package = "arbitrary", version = "1", optional = true, features = ["derive"] }
 
 [dev-dependencies]
 maplit = "1.0.2"

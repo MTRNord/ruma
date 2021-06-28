@@ -16,6 +16,7 @@ use serde_json::from_value as from_json_value;
 
 use super::ErrorKind;
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 enum Field<'de> {
     ErrCode,
     SoftLogout,
@@ -78,6 +79,7 @@ impl<'de> Deserialize<'de> for Field<'de> {
     }
 }
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct ErrorKindVisitor;
 
 impl<'de> Visitor<'de> for ErrorKindVisitor {
@@ -210,6 +212,7 @@ impl<'de> Visitor<'de> for ErrorKindVisitor {
 
 #[derive(FromString, DeserializeFromCowStr)]
 #[ruma_enum(rename_all = "M_MATRIX_ERROR_CASE")]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 enum ErrCode {
     Forbidden,
     UnknownToken,

@@ -6,6 +6,7 @@ use crate::{crypto_algorithms::DeviceKeyAlgorithm, DeviceId};
 
 /// A key algorithm and a device id, combined with a ':'.
 #[derive(Clone)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct DeviceKeyId {
     full_id: Box<str>,
     colon_idx: NonZeroU8,

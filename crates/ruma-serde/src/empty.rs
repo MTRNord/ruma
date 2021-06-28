@@ -6,6 +6,7 @@ use serde::{
 };
 
 #[derive(Clone, Debug, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Empty {}
 
 impl<'de> Deserialize<'de> for Empty {

@@ -2,6 +2,7 @@ use ruma_identifiers::RoomVersionId;
 
 use crate::{Error, Result};
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum RoomDisposition {
     /// A room version that has a stable specification.
     Stable,
@@ -10,6 +11,7 @@ pub enum RoomDisposition {
     Unstable,
 }
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum EventFormatVersion {
     /// $id:server event id format
     V1,
@@ -19,6 +21,7 @@ pub enum EventFormatVersion {
     V3,
 }
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum StateResolutionVersion {
     /// State resolution for rooms at version 1.
     V1,
@@ -26,6 +29,7 @@ pub enum StateResolutionVersion {
     V2,
 }
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 pub struct RoomVersion {
     /// The version this room is set to.

@@ -13,6 +13,7 @@ pub type ReadyEvent = MessageEvent<ReadyEventContent>;
 /// The payload for a to-device `m.key.verification.ready` event.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.key.verification.ready", kind = ToDevice)]
 pub struct ReadyToDeviceEventContent {
     /// The device ID which is initiating the request.
@@ -44,6 +45,7 @@ impl ReadyToDeviceEventContent {
 /// The payload for an in-room `m.key.verification.ready` event.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.key.verification.ready", kind = Message)]
 pub struct ReadyEventContent {
     /// The device ID which is initiating the request.

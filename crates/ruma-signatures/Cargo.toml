@@ -17,6 +17,7 @@ all-features = true
 [features]
 compat = ["tracing"]
 unstable-exhaustive-types = []
+arbitrary = ["arbitrary_cr", "ruma-identifiers/arbitrary", "ruma-serde/arbitrary"]
 
 [dependencies]
 base64 = "0.13.0"
@@ -30,3 +31,4 @@ serde_json = "1.0.60"
 sha2 = "0.9.5"
 thiserror = "1.0.23"
 tracing = { version = "0.1.25", optional = true }
+arbitrary_cr = { package = "arbitrary", version = "1", optional = true, features = ["derive"] }

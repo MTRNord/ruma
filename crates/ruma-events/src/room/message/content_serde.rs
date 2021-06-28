@@ -24,6 +24,7 @@ impl<'de> Deserialize<'de> for MessageEventContent {
 
 /// Helper struct to determine the msgtype from a `serde_json::value::RawValue`
 #[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct MessageTypeDeHelper {
     /// The message type field
     msgtype: String,

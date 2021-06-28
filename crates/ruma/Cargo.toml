@@ -114,6 +114,17 @@ unstable-pre-spec = [
     #"ruma-identity-service-api/unstable-pre-spec",
     #"ruma-push-gateway-api/unstable-pre-spec",
 ]
+    
+arbitrary = [
+    "ruma-appservice-api/arbitrary",
+    "ruma-client/arbitrary", 
+    "ruma-client-api/arbitrary", 
+    "ruma-federation-api/arbitrary", 
+    "ruma-identity-service-api/arbitrary", 
+    "ruma-push-gateway-api/arbitrary", 
+    "ruma-common/arbitrary",
+    "ruma-api/arbitrary"
+]
 
 [dependencies]
 assign = "1.1.1"

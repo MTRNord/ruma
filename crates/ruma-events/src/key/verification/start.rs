@@ -24,6 +24,7 @@ pub type StartEvent = MessageEvent<StartEventContent>;
 /// The payload of a to-device *m.key.verification.start* event.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.key.verification.start", kind = ToDevice)]
 pub struct StartToDeviceEventContent {
     /// The device ID which is initiating the process.
@@ -54,6 +55,7 @@ impl StartToDeviceEventContent {
 #[cfg(feature = "unstable-pre-spec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "unstable-pre-spec")))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.key.verification.start", kind = Message)]
 pub struct StartEventContent {
     /// The device ID which is initiating the process.
@@ -79,6 +81,7 @@ impl StartEventContent {
 /// An enum representing the different method specific *m.key.verification.start* content.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(untagged)]
 pub enum StartMethod {
     /// The *m.sas.v1* verification method.
@@ -100,6 +103,7 @@ pub enum StartMethod {
 /// Method specific content of a unknown key verification method.
 #[doc(hidden)]
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[allow(clippy::exhaustive_structs)]
 pub struct _CustomContent {
     /// The name of the method.
@@ -114,6 +118,7 @@ pub struct _CustomContent {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg(feature = "unstable-pre-spec")]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(rename = "m.reciprocate.v1", tag = "method")]
 pub struct ReciprocateV1Content {
     /// The shared secret from the QR code, encoded using unpadded base64.
@@ -134,6 +139,7 @@ impl ReciprocateV1Content {
 /// The payload of an *m.key.verification.start* event using the *m.sas.v1* method.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(rename = "m.sas.v1", tag = "method")]
 pub struct SasV1Content {
     /// The key agreement protocols the sending device understands.
@@ -159,6 +165,7 @@ pub struct SasV1Content {
 
 /// Mandatory initial set of fields for creating an `SasV1Content`.
 #[derive(Clone, Debug, Deserialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[allow(clippy::exhaustive_structs)]
 pub struct SasV1ContentInit {
     /// The key agreement protocols the sending device understands.

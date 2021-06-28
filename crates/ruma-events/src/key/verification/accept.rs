@@ -22,6 +22,7 @@ pub type AcceptEvent = MessageEvent<AcceptEventContent>;
 /// The payload for a to-device `AcceptEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.key.verification.accept", kind = ToDevice)]
 pub struct AcceptToDeviceEventContent {
     /// An opaque identifier for the verification process.
@@ -48,6 +49,7 @@ impl AcceptToDeviceEventContent {
 #[cfg(feature = "unstable-pre-spec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "unstable-pre-spec")))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct AcceptEventContent {
     /// The method specific content.
     #[serde(flatten)]
@@ -70,6 +72,7 @@ impl AcceptEventContent {
 /// An enum representing the different method specific *m.key.verification.accept* content.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(untagged)]
 pub enum AcceptMethod {
     /// The *m.sas.v1* verification method.
@@ -83,6 +86,7 @@ pub enum AcceptMethod {
 /// Method specific content of a unknown key verification method.
 #[doc(hidden)]
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[allow(clippy::exhaustive_structs)]
 pub struct _CustomContent {
     /// The name of the method.
@@ -96,6 +100,7 @@ pub struct _CustomContent {
 /// The payload of an *m.key.verification.accept* event using the *m.sas.v1* method.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(rename = "m.sas.v1", tag = "method")]
 pub struct SasV1Content {
     /// The key agreement protocol the device is choosing to use, out of the
@@ -125,6 +130,7 @@ pub struct SasV1Content {
 
 /// Mandatory initial set of fields for creating an accept `SasV1Content`.
 #[derive(Clone, Debug, Deserialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[allow(clippy::exhaustive_structs)]
 pub struct SasV1ContentInit {
     /// The key agreement protocol the device is choosing to use, out of the

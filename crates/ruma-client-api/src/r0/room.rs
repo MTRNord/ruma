@@ -9,6 +9,7 @@ use ruma_serde::StringEnum;
 
 /// Whether or not a newly created room will be listed in the room directory.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum Visibility {
     /// Indicates that the room will be shown in the published room list.

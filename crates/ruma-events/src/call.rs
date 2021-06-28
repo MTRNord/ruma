@@ -13,6 +13,7 @@ pub mod invite;
 /// A VoIP session description.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct SessionDescription {
     /// The type of session description.
     #[serde(rename = "type")]
@@ -31,6 +32,7 @@ impl SessionDescription {
 
 /// The type of VoIP session description.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum SessionDescriptionType {
     /// An answer.

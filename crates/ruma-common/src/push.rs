@@ -39,6 +39,7 @@ pub use self::{
 /// room, or by default. The push ruleset contains the entire set of scopes and rules.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Ruleset {
     /// These rules configure behavior for (unencrypted) messages that match certain patterns.
     pub content: IndexSet<PatternedPushRule>,
@@ -133,6 +134,7 @@ impl Ruleset {
 /// `SimplePushRule::from` / `.into()`.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct SimplePushRule {
     /// Actions to determine if and how a notification is delivered for events matching this rule.
     pub actions: Vec<Action>,
@@ -153,6 +155,7 @@ pub struct SimplePushRule {
 /// (non-breaking) release of the Matrix specification.
 #[derive(Debug)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct SimplePushRuleInit {
     /// Actions to determine if and how a notification is delivered for events matching this rule.
     pub actions: Vec<Action>,
@@ -205,6 +208,7 @@ impl Equivalent<SimplePushRule> for str {
 /// `ConditionalPushRule::from` / `.into()`.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ConditionalPushRule {
     /// Actions to determine if and how a notification is delivered for events matching this rule.
     pub actions: Vec<Action>,
@@ -243,6 +247,7 @@ impl ConditionalPushRule {
 /// a new (non-breaking) release of the Matrix specification.
 #[derive(Debug)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ConditionalPushRuleInit {
     /// Actions to determine if and how a notification is delivered for events matching this rule.
     pub actions: Vec<Action>,
@@ -301,6 +306,7 @@ impl Equivalent<ConditionalPushRule> for str {
 /// `PatternedPushRule::from` / `.into()`.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct PatternedPushRule {
     /// Actions to determine if and how a notification is delivered for events matching this rule.
     pub actions: Vec<Action>,
@@ -341,6 +347,7 @@ impl PatternedPushRule {
 /// new (non-breaking) release of the Matrix specification.
 #[derive(Debug)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct PatternedPushRuleInit {
     /// Actions to determine if and how a notification is delivered for events matching this rule.
     pub actions: Vec<Action>,
@@ -391,6 +398,7 @@ impl Equivalent<PatternedPushRule> for str {
 /// Information for the pusher implementation itself.
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct PusherData {
     /// Required if the pusher's kind is http. The URL to use to send notifications to.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -413,6 +421,7 @@ impl PusherData {
 ///
 /// [spec]: https://matrix.org/docs/spec/push_gateway/r0.1.1#homeserver-behaviour
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum PushFormat {
     /// Require the homeserver to only send a reduced set of fields in the push.

@@ -16,6 +16,7 @@ pub type ChildEvent = StateEvent<ChildEventContent>;
 /// The payload for `ChildEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.space.child", kind = State)]
 pub struct ChildEventContent {
     /// List of candidate servers that can be used to join the room.

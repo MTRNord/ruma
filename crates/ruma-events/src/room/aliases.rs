@@ -16,6 +16,7 @@ pub type AliasesEvent = StateEvent<AliasesEventContent>;
 /// The payload for `AliasesEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room.aliases", kind = State, custom_redacted)]
 pub struct AliasesEventContent {
     /// A list of room aliases.
@@ -51,6 +52,7 @@ impl RedactContent for AliasesEventContent {
 /// An aliases event that has been redacted.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RedactedAliasesEventContent {
     /// A list of room aliases.
     ///

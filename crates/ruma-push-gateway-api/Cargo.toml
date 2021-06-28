@@ -17,6 +17,7 @@ all-features = true
 unstable-exhaustive-types = []
 client = []
 server = []
+arbitrary = ["arbitrary_cr", "ruma-api/arbitrary", "ruma-events/arbitrary", "ruma-common/arbitrary", "ruma-identifiers/arbitrary", "ruma-serde/arbitrary"]
 
 [dependencies]
 js_int = { version = "0.2.0", features = ["serde"] }
@@ -27,3 +28,4 @@ ruma-identifiers = { version = "0.19.4", path = "../ruma-identifiers" }
 ruma-serde = { version = "0.4.1", path = "../ruma-serde" }
 serde = { version = "1.0.118", features = ["derive"] }
 serde_json = "1.0.61"
+arbitrary_cr = { package = "arbitrary", version = "1", optional = true, features = ["derive"] }

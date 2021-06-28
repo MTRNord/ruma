@@ -18,6 +18,7 @@ pub type MacEvent = MessageEvent<MacEventContent>;
 /// The payload for a to-device `MacEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.key.verification.mac", kind = ToDevice)]
 pub struct MacToDeviceEventContent {
     /// An opaque identifier for the verification process.
@@ -48,6 +49,7 @@ impl MacToDeviceEventContent {
 #[cfg(feature = "unstable-pre-spec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "unstable-pre-spec")))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.key.verification.mac", kind = Message)]
 pub struct MacEventContent {
     /// A map of the key ID to the MAC of the key, using the algorithm in the verification process.

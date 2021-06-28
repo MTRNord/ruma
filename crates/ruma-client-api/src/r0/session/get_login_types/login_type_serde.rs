@@ -7,6 +7,7 @@ use super::LoginType;
 
 /// Helper struct to determine the type from a `serde_json::value::RawValue`
 #[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct LoginTypeDeHelper {
     /// The login type field
     #[serde(rename = "type")]

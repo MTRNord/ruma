@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 /// A chunk of a room list response, describing one room
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct PublicRoomsChunk {
     /// Aliases of the room.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]

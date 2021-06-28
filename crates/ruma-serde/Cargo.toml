@@ -20,6 +20,7 @@ js_int = { version = "0.2.0", features = ["serde"] }
 ruma-serde-macros = { version = "=0.4.1", path = "../ruma-serde-macros" }
 serde = { version = "1.0.118", features = ["derive"] }
 serde_json = { version = "1.0.61", features = ["raw_value"] }
+arbitrary = { version = "1", optional = true, features = ["derive"] }
 
 [dev-dependencies]
 matches = "0.1.8"

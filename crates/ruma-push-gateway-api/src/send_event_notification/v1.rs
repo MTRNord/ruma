@@ -59,6 +59,7 @@ impl Response {
 /// Type for passing information about a push notification
 #[derive(Clone, Debug, Default, Outgoing, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Notification<'a> {
     /// The Matrix event ID of the event being notified about.
     ///
@@ -137,6 +138,7 @@ impl<'a> Notification<'a> {
 /// This may be used by push gateways to deliver less time-sensitive
 /// notifications in a way that will preserve battery power on mobile devices.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum NotificationPriority {
     /// A high priority notification
@@ -157,6 +159,7 @@ impl Default for NotificationPriority {
 
 /// Type for passing information about notification counts.
 #[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 pub struct NotificationCounts {
     /// The number of unread messages a user has across all of the rooms they
@@ -180,6 +183,7 @@ impl NotificationCounts {
 
 /// Type for passing information about devices.
 #[derive(Clone, Debug, Deserialize, Outgoing, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 pub struct Device {
     /// The `app_id` given when the pusher was created.
@@ -242,6 +246,7 @@ mod tweak_serde {
         map.end()
     }
 
+    #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
     struct TweaksVisitor;
 
     impl<'de> Visitor<'de> for TweaksVisitor {

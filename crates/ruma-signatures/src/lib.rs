@@ -44,6 +44,8 @@
 
 #![warn(missing_docs)]
 
+extern crate arbitrary_cr as arbitrary;
+
 use ruma_serde::{AsRefStr, DisplayAsRefStr};
 
 pub use error::{Error, JsonError, JsonType, ParseError, SplitError, VerificationError};
@@ -65,6 +67,7 @@ mod verification;
 /// The algorithm used for signing data.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, AsRefStr, DisplayAsRefStr)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum Algorithm {
     /// The Ed25519 digital signature algorithm.

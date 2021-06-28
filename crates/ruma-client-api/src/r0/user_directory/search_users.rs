@@ -70,6 +70,7 @@ fn is_default_limit(limit: &UInt) -> bool {
 /// User data as result of a search.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct User {
     /// The user's matrix user ID.
     pub user_id: UserId,

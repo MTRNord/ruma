@@ -61,6 +61,7 @@ ruma_api! {
 /// Information included alongside an event that is not signed.
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct UnsignedEventContent {
     /// An optional list of simplified events to help the receiver of the invite identify the room.
     /// The recommended events to include are the join rules, canonical alias, avatar, and name of
@@ -83,6 +84,7 @@ impl UnsignedEventContent {
 
 /// Initial set of fields of `Request`.
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RequestInit<'a> {
     /// The room ID that the user is being invited to.
     pub room_id: &'a RoomId,

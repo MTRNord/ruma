@@ -52,6 +52,7 @@ impl Response {
 
 /// A mark for whether the user is typing within a length of time or not.
 #[derive(Clone, Copy, Debug, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(into = "TypingInner")]
 pub enum Typing {
     /// Not typing.
@@ -62,6 +63,7 @@ pub enum Typing {
 }
 
 #[derive(Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct TypingInner {
     typing: bool,
 

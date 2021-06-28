@@ -43,6 +43,7 @@ impl Response {
 /// Collection of localized policies.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Policies {
     /// The version for the policy.
     ///
@@ -68,6 +69,7 @@ impl Policies {
 /// A localized policy offered by a server.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct LocalizedPolicy {
     /// The localized name of the policy.
     ///

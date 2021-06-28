@@ -58,6 +58,7 @@ impl<'a> Request<'a> {
 /// A pending invite the third party identifier has received.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ThirdPartyInvite {
     /// The type of third party invite issues. Currently only "email" is used.
     pub medium: Medium,

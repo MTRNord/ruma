@@ -12,6 +12,7 @@ pub type ReactionEvent = MessageEvent<ReactionEventContent>;
 /// The payload for a `ReactionEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.reaction", kind = Message)]
 pub struct ReactionEventContent {
     /// Information about the related event.
@@ -37,6 +38,7 @@ impl From<Relation> for ReactionEventContent {
 /// The relation that contains info which event the reaction is applying to.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "rel_type", rename = "m.annotation")]
 pub struct Relation {
     /// The event that is being reacted to.

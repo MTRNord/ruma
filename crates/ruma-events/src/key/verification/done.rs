@@ -13,6 +13,7 @@ pub type DoneEvent = MessageEvent<DoneEventContent>;
 /// The payload for a to-device `m.key.verification.done` event.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.key.verification.done", kind = ToDevice)]
 pub struct DoneToDeviceEventContent {
     /// An opaque identifier for the verification process.
@@ -31,6 +32,7 @@ impl DoneToDeviceEventContent {
 /// The payload for a in-room `m.key.verification.done` event.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.key.verification.done", kind = Message)]
 pub struct DoneEventContent {
     /// Relation signaling which verification request this event is responding to.

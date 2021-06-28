@@ -13,6 +13,7 @@ pub type AnswerEvent = MessageEvent<AnswerEventContent>;
 /// The payload for `AnswerEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.call.answer", kind = Message)]
 pub struct AnswerEventContent {
     /// The VoIP session description object. The session description type must be *answer*.

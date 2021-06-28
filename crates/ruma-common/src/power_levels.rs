@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 /// The power level requirements for specific notification types.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct NotificationPowerLevels {
     /// The level required to trigger an `@room` notification.
     ///

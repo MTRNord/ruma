@@ -12,6 +12,7 @@ pub type PushRulesEvent = GlobalAccountDataEvent<PushRulesEventContent>;
 /// The payload for `PushRulesEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.push_rules", kind = GlobalAccountData)]
 pub struct PushRulesEventContent {
     /// The global ruleset.

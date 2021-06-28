@@ -13,6 +13,7 @@ pub type CandidatesEvent = MessageEvent<CandidatesEventContent>;
 /// The payload for `CandidatesEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.call.candidates", kind = Message)]
 pub struct CandidatesEventContent {
     /// The ID of the call this event relates to.
@@ -36,6 +37,7 @@ impl CandidatesEventContent {
 /// An ICE (Interactive Connectivity Establishment) candidate.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(rename_all = "camelCase")]
 pub struct Candidate {
     /// The SDP "a" line of the candidate.

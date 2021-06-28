@@ -25,6 +25,7 @@ pub mod start;
 
 /// A hash algorithm.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum HashAlgorithm {
     /// The SHA256 hash algorithm.
@@ -36,6 +37,7 @@ pub enum HashAlgorithm {
 
 /// A key agreement protocol.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "kebab-case")]
 pub enum KeyAgreementProtocol {
     /// The [Curve25519](https://cr.yp.to/ecdh.html) key agreement protocol.
@@ -50,6 +52,7 @@ pub enum KeyAgreementProtocol {
 
 /// A message authentication code algorithm.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "kebab-case")]
 pub enum MessageAuthenticationCode {
     /// The HKDF-HMAC-SHA256 MAC.
@@ -64,6 +67,7 @@ pub enum MessageAuthenticationCode {
 
 /// A Short Authentication String method.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum ShortAuthenticationString {
     /// The decimal method.
@@ -81,6 +85,7 @@ pub enum ShortAuthenticationString {
 #[cfg(feature = "unstable-pre-spec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "unstable-pre-spec")))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "rel_type", rename = "m.reference")]
 pub struct Relation {
     /// The event ID of a related `m.key.verification.request`.
@@ -97,6 +102,7 @@ impl Relation {
 
 /// A Short Authentication String (SAS) verification method.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum VerificationMethod {
     /// The *m.sas.v1* verification method.
     #[ruma_enum(rename = "m.sas.v1")]

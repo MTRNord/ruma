@@ -13,6 +13,7 @@ pub type TombstoneEvent = StateEvent<TombstoneEventContent>;
 /// The payload for `TombstoneEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[ruma_event(type = "m.room.tombstone", kind = State)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 pub struct TombstoneEventContent {
     /// A server-defined message.

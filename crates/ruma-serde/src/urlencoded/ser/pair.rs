@@ -5,6 +5,7 @@ use serde::ser;
 
 use super::{key::KeySink, part::PartSerializer, value::ValueSink, Error};
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct PairSerializer<'input, 'target, Target: UrlEncodedTarget> {
     urlencoder: &'target mut UrlEncodedSerializer<'input, Target>,
     state: PairState,
@@ -226,6 +227,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 enum PairState {
     WaitingForKey,
     WaitingForValue { key: Cow<'static, str> },

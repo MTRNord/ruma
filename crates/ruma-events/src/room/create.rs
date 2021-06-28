@@ -14,6 +14,7 @@ pub type CreateEvent = StateEvent<CreateEventContent>;
 /// The payload for `CreateEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room.create", kind = State)]
 pub struct CreateEventContent {
     /// The `user_id` of the room creator. This is set by the homeserver.
@@ -60,6 +61,7 @@ impl CreateEventContent {
 
 /// An enum of possible room types.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum RoomType {
     /// Defines the room as a space.
     #[ruma_enum(rename = "m.space")]
@@ -72,6 +74,7 @@ pub enum RoomType {
 /// A reference to an old room replaced during a room version upgrade.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct PreviousRoom {
     /// The ID of the old room.
     pub room_id: RoomId,

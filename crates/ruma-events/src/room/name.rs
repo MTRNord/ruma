@@ -10,6 +10,7 @@ pub type NameEvent = StateEvent<NameEventContent>;
 
 /// The payload for `NameEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room.name", kind = State)]
 pub struct NameEventContent {
     /// The name of the room. This MUST NOT exceed 255 bytes.

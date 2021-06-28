@@ -12,6 +12,7 @@ pub type PinnedEventsEvent = StateEvent<PinnedEventsEventContent>;
 /// The payload for `PinnedEventsEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room.pinned_events", kind = State)]
 pub struct PinnedEventsEventContent {
     /// An ordered list of event IDs to pin.

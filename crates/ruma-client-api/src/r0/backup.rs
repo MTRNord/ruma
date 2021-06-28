@@ -26,6 +26,7 @@ use serde::{Deserialize, Serialize};
 /// A wrapper around a mapping of session IDs to key data.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RoomKeyBackup {
     /// A map of session IDs to key data.
     pub sessions: BTreeMap<String, KeyBackupData>,
@@ -41,6 +42,7 @@ impl RoomKeyBackup {
 /// The algorithm used for storing backups.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "algorithm", content = "auth_data")]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum BackupAlgorithm {
     /// `m.megolm_backup.v1.curve25519-aes-sha2` backup algorithm.
     #[serde(rename = "m.megolm_backup.v1.curve25519-aes-sha2")]
@@ -59,6 +61,7 @@ pub enum BackupAlgorithm {
 /// `KeyBackupData::from` / `.into()`.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct KeyBackupData {
     /// The index of the first message in the session that the key can decrypt.
     pub first_message_index: UInt,
@@ -79,6 +82,7 @@ pub struct KeyBackupData {
 /// new (non-breaking) release of the Matrix specification.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct KeyBackupDataInit {
     /// The index of the first message in the session that the key can decrypt.
     pub first_message_index: UInt,
@@ -107,6 +111,7 @@ impl From<KeyBackupDataInit> for KeyBackupData {
 /// `SessionData::from` / `.into()`.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct SessionData {
     /// Unpadded base64-encoded public half of the ephemeral key.
     pub ephemeral: String,
@@ -124,6 +129,7 @@ pub struct SessionData {
 /// new (non-breaking) release of the Matrix specification.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct SessionDataInit {
     /// Unpadded base64-encoded public half of the ephemeral key.
     pub ephemeral: String,

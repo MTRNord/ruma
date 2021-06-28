@@ -5,6 +5,7 @@ use std::{error::Error, fmt};
 /// This type is similar to [`InvalidEvent`](struct.InvalidEvent.html), but used during the
 /// construction of a new event, as opposed to deserialization of an existing event from JSON.
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct InvalidInput(pub(crate) String);
 
 impl fmt::Display for InvalidInput {
@@ -18,6 +19,7 @@ impl Error for InvalidInput {}
 /// An error when attempting to create a value from a string via the `FromStr` trait.
 #[derive(Clone, Eq, Debug, Hash, PartialEq)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct FromStrError;
 
 impl fmt::Display for FromStrError {

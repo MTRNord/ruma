@@ -10,6 +10,7 @@ pub type ServerEvent = StateEvent<ServerEventContent>;
 
 /// The payload for `ServerEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[allow(clippy::exhaustive_structs)]
 #[ruma_event(type = "m.policy.rule.server", kind = State)]
 pub struct ServerEventContent(pub PolicyRuleEventContent);

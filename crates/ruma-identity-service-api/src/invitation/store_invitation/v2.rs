@@ -115,6 +115,7 @@ impl Response {
 /// The server's long-term public key and generated ephemeral public key.
 #[derive(Debug, Clone)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct PublicKeys {
     /// The server's long-term public key.
     pub server_key: String,

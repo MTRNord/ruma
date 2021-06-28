@@ -4,6 +4,7 @@ use std::fmt;
 
 /// An error encountered when trying to parse an invalid ID string.
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum Error {
     /// The room version ID is empty.
     EmptyRoomVersionId,

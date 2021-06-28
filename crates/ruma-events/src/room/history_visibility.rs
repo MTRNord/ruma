@@ -13,6 +13,7 @@ pub type HistoryVisibilityEvent = StateEvent<HistoryVisibilityEventContent>;
 /// The payload for `HistoryVisibilityEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room.history_visibility", kind = State)]
 pub struct HistoryVisibilityEventContent {
     /// Who can see the room history.
@@ -29,6 +30,7 @@ impl HistoryVisibilityEventContent {
 
 /// Who can see a room's history.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum HistoryVisibility {
     /// Previous events are accessible to newly joined members from the point they were invited

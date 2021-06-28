@@ -39,6 +39,7 @@ pub type MemberEvent = StateEvent<MemberEventContent>;
 /// The payload for `MemberEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room.member", kind = State)]
 pub struct MemberEventContent {
     /// The avatar URL for this user, if any. This is added by the homeserver.
@@ -86,6 +87,7 @@ impl MemberEventContent {
 
 /// The membership state of a user.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "lowercase")]
 pub enum MembershipState {
     /// The user is banned.
@@ -110,6 +112,7 @@ pub enum MembershipState {
 /// Information about a third party invitation.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ThirdPartyInvite {
     /// A name which can be displayed to represent the user instead of their third party
     /// identifier.
@@ -132,6 +135,7 @@ impl ThirdPartyInvite {
 /// invitation.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct SignedContent {
     /// The invited Matrix user ID.
     ///
@@ -160,6 +164,7 @@ impl SignedContent {
 /// Translation of the membership change in `m.room.member` event.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum MembershipChange {
     /// No change.
     None,

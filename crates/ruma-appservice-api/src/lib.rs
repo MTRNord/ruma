@@ -7,6 +7,7 @@
 
 #![warn(missing_docs)]
 
+extern crate arbitrary_cr as arbitrary;
 use serde::{Deserialize, Serialize};
 
 pub mod event;
@@ -18,6 +19,7 @@ pub mod thirdparty;
 /// Used for [appservice registration](https://matrix.org/docs/spec/application_service/r0.1.2#registration).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Namespace {
     /// Whether this application service has exclusive access to events within this namespace.
     pub exclusive: bool,
@@ -38,6 +40,7 @@ impl Namespace {
 /// Used for [appservice registration](https://matrix.org/docs/spec/application_service/r0.1.2#registration).
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Namespaces {
     /// Events which are sent from certain users.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -68,6 +71,7 @@ impl Namespaces {
 /// Used for [appservice registration](https://matrix.org/docs/spec/application_service/r0.1.2#registration).
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Registration {
     /// A unique, user - defined ID of the application service which will never change.
     pub id: String,
@@ -104,6 +108,7 @@ pub struct Registration {
 /// Used for [appservice registration](https://matrix.org/docs/spec/application_service/r0.1.2#registration).
 #[derive(Debug)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RegistrationInit {
     /// A unique, user - defined ID of the application service which will never change.
     pub id: String,

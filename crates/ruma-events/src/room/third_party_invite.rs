@@ -15,6 +15,7 @@ pub type ThirdPartyInviteEvent = StateEvent<ThirdPartyInviteEventContent>;
 /// The payload for `ThirdPartyInviteEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room.third_party_invite", kind = State)]
 pub struct ThirdPartyInviteEventContent {
     /// A user-readable string which represents the user who has been invited.
@@ -54,6 +55,7 @@ impl ThirdPartyInviteEventContent {
 /// A public key for signing a third party invite token.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct PublicKey {
     /// An optional URL which can be fetched to validate whether the key has been revoked.
     ///

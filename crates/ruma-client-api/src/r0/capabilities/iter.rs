@@ -8,6 +8,7 @@ use super::Capabilities;
 
 /// Reference to a capability.
 #[derive(Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct CapabilityRef<'a> {
     name: &'a str,
     value: Option<&'a JsonValue>,
@@ -33,6 +34,7 @@ impl<'a> CapabilityRef<'a> {
 
 /// An iterator over capabilities.
 #[derive(Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct CapabilitiesIter<'a> {
     /// Reference to Capabilities
     caps: &'a Capabilities,

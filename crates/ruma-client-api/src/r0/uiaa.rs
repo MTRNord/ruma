@@ -22,6 +22,7 @@ pub mod authorize_fallback;
 /// Additional authentication information for the user-interactive authentication API.
 #[derive(Clone, Debug, Outgoing, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(untagged)]
 pub enum AuthData<'a> {
     /// Used for sending UIAA authentication requests to the homeserver directly from the client.
@@ -68,6 +69,7 @@ impl<'a> AuthData<'a> {
 /// API.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct UiaaInfo {
     /// List of authentication flows available for this endpoint.
     pub flows: Vec<AuthFlow>,
@@ -100,6 +102,7 @@ impl UiaaInfo {
 /// Description of steps required to authenticate via the User-Interactive Authentication API.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(test, derive(PartialEq))]
 pub struct AuthFlow {
     /// Ordered list of stages required to complete authentication.
@@ -116,6 +119,7 @@ impl AuthFlow {
 
 /// Contains either a User-Interactive Authentication API response body or a Matrix error.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum UiaaResponse {
     /// User-Interactive Authentication API response
     AuthResponse(UiaaInfo),

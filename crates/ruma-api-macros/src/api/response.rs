@@ -76,6 +76,7 @@ impl Response {
         let response_body_struct = quote! {
             /// Data in the response body.
             #[derive(Debug, #ruma_serde::Outgoing, #serde::Deserialize, #serde::Serialize)]
+            #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
             struct ResponseBody #def
         };
 
@@ -97,6 +98,7 @@ impl Response {
         quote! {
             #[doc = #docs]
             #[derive(Debug, Clone, #ruma_serde::Outgoing, #ruma_serde::_FakeDeriveSerde)]
+            #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
             #non_exhaustive_attr
             #[incoming_derive(!Deserialize)]
             #( #struct_attributes )*

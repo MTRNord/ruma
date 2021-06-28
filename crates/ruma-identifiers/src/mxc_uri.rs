@@ -12,6 +12,7 @@ use crate::ServerName;
 ///
 /// [MXC URI]: https://matrix.org/docs/spec/client_server/r0.6.1#mxc-uri
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct MxcUri {
     full_uri: Box<str>,
     slash_idx: Option<NonZeroU8>,

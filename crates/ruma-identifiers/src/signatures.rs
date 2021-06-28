@@ -16,6 +16,7 @@ pub type EntitySignatures<K> = BTreeMap<SigningKeyId<K>, String>;
 /// signatures.insert(server_name, key_identifier, signature.into());
 /// ```
 #[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(
     feature = "serde",
     derive(serde::Serialize, serde::Deserialize),

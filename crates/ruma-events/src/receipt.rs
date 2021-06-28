@@ -20,6 +20,7 @@ pub type ReceiptEvent = EphemeralRoomEvent<ReceiptEventContent>;
 /// A mapping of event ID to a collection of receipts for this event ID. The event ID is the ID of
 /// the event being acknowledged and *not* an ID for the receipt itself.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[allow(clippy::exhaustive_structs)]
 #[ruma_event(type = "m.receipt", kind = EphemeralRoom)]
 pub struct ReceiptEventContent(pub BTreeMap<EventId, Receipts>);
@@ -49,6 +50,7 @@ pub type UserReceipts = BTreeMap<UserId, Receipt>;
 /// An acknowledgement of an event.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Receipt {
     /// The time when the receipt was sent.
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -12,6 +12,7 @@ pub type TypingEvent = EphemeralRoomEvent<TypingEventContent>;
 /// The payload for `TypingEvent`.
 #[derive(Clone, Debug, Default, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.typing", kind = EphemeralRoom)]
 pub struct TypingEventContent {
     /// The list of user IDs typing in this room, if any.

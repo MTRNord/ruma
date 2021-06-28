@@ -11,6 +11,7 @@ pub type ServerAclEvent = StateEvent<ServerAclEventContent>;
 /// The payload for `ServerAclEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room.server_acl", kind = State)]
 pub struct ServerAclEventContent {
     /// True to allow server names that are IP address literals. False to deny.

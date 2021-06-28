@@ -17,6 +17,7 @@ pub type CancelEvent = MessageEvent<CancelEventContent>;
 /// The payload for a to-device `CancelEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.key.verification.cancel", kind = ToDevice)]
 pub struct CancelToDeviceEventContent {
     /// The opaque identifier for the verification process/request.
@@ -43,6 +44,7 @@ impl CancelToDeviceEventContent {
 #[cfg(feature = "unstable-pre-spec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "unstable-pre-spec")))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.key.verification.cancel", kind = Message)]
 pub struct CancelEventContent {
     /// A human readable description of the `code`.
@@ -75,6 +77,7 @@ impl CancelEventContent {
 /// obtained through `.as_str()`.
 // FIXME: Add `m.foo_bar` as a naming scheme in StringEnum and remove rename attributes.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum CancelCode {
     /// The user cancelled the verification.
     #[ruma_enum(rename = "m.user")]

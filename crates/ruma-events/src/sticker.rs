@@ -12,6 +12,7 @@ pub type StickerEvent = MessageEvent<StickerEventContent>;
 /// The payload for `StickerEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.sticker", kind = Message)]
 pub struct StickerEventContent {
     /// A textual representation or associated description of the sticker image. This could

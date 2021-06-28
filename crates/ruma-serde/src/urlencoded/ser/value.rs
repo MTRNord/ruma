@@ -8,6 +8,7 @@ use super::{
     Error,
 };
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ValueSink<'input, 'key, 'target, Target>
 where
     Target: UrlEncodedTarget,

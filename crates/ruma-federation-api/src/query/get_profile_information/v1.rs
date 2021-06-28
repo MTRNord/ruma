@@ -60,6 +60,7 @@ impl Response {
 
 /// Profile fields to specify in query.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum ProfileField {
     /// Display name of the user.
     #[ruma_enum(rename = "displayname")]

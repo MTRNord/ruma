@@ -17,6 +17,7 @@ mod kind_serde;
 
 /// An enum for the error kind. Items may contain additional information.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum ErrorKind {
     /// M_FORBIDDEN
     Forbidden,
@@ -183,6 +184,7 @@ impl fmt::Display for ErrorKind {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[allow(clippy::exhaustive_structs)]
 #[cfg_attr(test, derive(PartialEq))]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ErrorBody {
     /// A value which can be used to handle an error message
     #[serde(flatten)]
@@ -196,6 +198,7 @@ pub struct ErrorBody {
 /// A Matrix Error
 #[derive(Debug, Clone)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Error {
     /// A value which can be used to handle an error message
     pub kind: ErrorKind,

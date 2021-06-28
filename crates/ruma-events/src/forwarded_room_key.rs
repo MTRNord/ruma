@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 /// and convert it via `ForwardedRoomKeyToDeviceEventContent::from` / `.into()`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.forwarded_room_key", kind = ToDevice)]
 pub struct ForwardedRoomKeyToDeviceEventContent {
     /// The encryption algorithm the key in this event is to be used with.
@@ -49,6 +50,7 @@ pub struct ForwardedRoomKeyToDeviceEventContent {
 /// a new (non-breaking) release of the Matrix specification.
 #[derive(Debug)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ForwardedRoomKeyToDeviceEventContentInit {
     /// The encryption algorithm the key in this event is to be used with.
     pub algorithm: EventEncryptionAlgorithm,

@@ -6,6 +6,7 @@ use ruma_serde::StringEnum;
 
 /// A description of a user's connectivity and availability for chat.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum PresenceState {
     /// Disconnected from the service.

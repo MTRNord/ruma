@@ -4,6 +4,7 @@ use serde::ser;
 
 use super::{part::Sink, Error};
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum Key<'key> {
     Static(&'static str),
     Dynamic(Cow<'key, str>),
@@ -29,6 +30,7 @@ impl<'key> From<Key<'key>> for Cow<'static, str> {
     }
 }
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct KeySink<End> {
     end: End,
 }

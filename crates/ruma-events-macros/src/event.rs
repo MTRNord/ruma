@@ -273,6 +273,7 @@ fn expand_deserialize_event(
             {
                 #[derive(#serde::Deserialize)]
                 #[serde(field_identifier, rename_all = "snake_case")]
+                #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
                 enum Field {
                     // since this is represented as an enum we have to add it so the JSON picks it
                     // up
@@ -284,6 +285,7 @@ fn expand_deserialize_event(
 
                 /// Visits the fields of an event struct to handle deserialization of
                 /// the `content` and `prev_content` fields.
+                #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
                 struct EventVisitor #impl_generics (#deserialize_phantom_type #ty_gen);
 
                 #[automatically_derived]

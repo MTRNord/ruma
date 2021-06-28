@@ -12,6 +12,7 @@ pub type EncryptionEvent = StateEvent<EncryptionEventContent>;
 /// The payload for `EncryptionEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room.encryption", kind = State)]
 pub struct EncryptionEventContent {
     /// The encryption algorithm to be used to encrypt messages sent in this room.

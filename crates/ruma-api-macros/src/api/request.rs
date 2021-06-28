@@ -185,6 +185,7 @@ impl Request {
                         #serde::Serialize,
                         #derive_deserialize
                     )]
+                    #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
                     struct RequestBody #def
                 }
             });
@@ -205,6 +206,7 @@ impl Request {
                     #serde::Serialize,
                     #derive_deserialize
                 )]
+                #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
                 struct RequestQuery #lifetime (#field);
             }
         } else if self.has_query_fields() {
@@ -223,6 +225,7 @@ impl Request {
                     #serde::Serialize,
                     #derive_deserialize
                 )]
+                #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
                 struct RequestQuery #lifetime {
                     #(#fields),*
                 }
@@ -240,6 +243,7 @@ impl Request {
             #[derive(Debug, Clone, #ruma_serde::Outgoing, #ruma_serde::_FakeDeriveSerde)]
             #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
             #[incoming_derive(!Deserialize)]
+            #[cfg_attr(feature = "arbitrary", derive(ruma_api::arbitrary::Arbitrary))]
             #( #struct_attributes )*
             pub struct Request #lifetimes #request_def
 

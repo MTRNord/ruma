@@ -15,6 +15,7 @@ pub type Object = BTreeMap<String, CanonicalJsonValue>;
 
 /// Represents a canonical JSON value as per the Matrix specification.
 #[derive(Clone, Eq, PartialEq)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum CanonicalJsonValue {
     /// Represents a JSON null value.
     ///

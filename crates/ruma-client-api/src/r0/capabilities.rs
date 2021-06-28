@@ -16,6 +16,7 @@ pub mod iter;
 /// Contains information about all the capabilities that the server supports.
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Capabilities {
     /// Capability to indicate if the user can change their password.
     #[serde(
@@ -96,6 +97,7 @@ impl<'a> IntoIterator for &'a Capabilities {
 /// Information about the m.change_password capability
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ChangePasswordCapability {
     /// `true` if the user can change their password, `false` otherwise.
     pub enabled: bool,
@@ -122,6 +124,7 @@ impl Default for ChangePasswordCapability {
 /// Information about the m.room_versions capability
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RoomVersionsCapability {
     /// The default room version the server is using for new rooms.
     pub default: RoomVersionId,
@@ -164,6 +167,7 @@ impl Default for RoomVersionsCapability {
 /// The stability of a room version
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
 #[ruma_enum(rename_all = "lowercase")]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum RoomVersionStability {
     /// Support for the given version is stable.
     Stable,

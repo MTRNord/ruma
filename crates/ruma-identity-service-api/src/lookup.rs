@@ -11,6 +11,7 @@ pub mod lookup_3pid;
 /// This type can hold an arbitrary string. To check for algorithms that are not available as a
 /// documented variant here, use its string representation, obtained through `.as_str()`.
 #[derive(Debug, PartialEq, Eq, Clone, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[non_exhaustive]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum IdentifierHashingAlgorithm {

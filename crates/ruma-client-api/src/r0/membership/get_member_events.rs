@@ -65,6 +65,7 @@ impl Response {
 /// The kind of membership events to filter for.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
 #[ruma_enum(rename_all = "lowercase")]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum MembershipEventFilter {
     /// The user has joined.
     Join,

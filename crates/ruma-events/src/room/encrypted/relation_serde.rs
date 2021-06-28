@@ -85,6 +85,7 @@ where
 }
 
 #[derive(Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct EventWithRelatesToJsonRepr {
     #[serde(rename = "m.relates_to", default, skip_serializing_if = "RelatesToJsonRepr::is_empty")]
     relates_to: RelatesToJsonRepr,
@@ -107,6 +108,7 @@ impl EventWithRelatesToJsonRepr {
 /// Enum modeling the different ways relationships can be expressed in a `m.relates_to` field of an
 /// event.
 #[derive(Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct RelatesToJsonRepr {
     #[serde(rename = "m.in_reply_to", skip_serializing_if = "Option::is_none")]
     in_reply_to: Option<InReplyTo>,
@@ -132,6 +134,7 @@ impl RelatesToJsonRepr {
 
 /// A relation, which associates new information to an existing event.
 #[derive(Clone, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg(feature = "unstable-pre-spec")]
 #[serde(tag = "rel_type")]
 enum RelationJsonRepr {
@@ -156,6 +159,7 @@ enum RelationJsonRepr {
 }
 
 #[derive(Clone, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg(feature = "unstable-pre-spec")]
 struct ReplacementJsonRepr {
     event_id: EventId,

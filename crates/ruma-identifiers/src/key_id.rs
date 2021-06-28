@@ -11,6 +11,7 @@ use std::{
 use crate::{crypto_algorithms::SigningKeyAlgorithm, DeviceId, KeyName};
 
 /// A key algorithm and key name delimited by a colon
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct KeyId<A, K: ?Sized> {
     full_id: Box<str>,
     colon_idx: NonZeroU8,

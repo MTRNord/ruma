@@ -140,6 +140,7 @@ pub fn expand_derive_outgoing(input: DeriveInput) -> syn::Result<TokenStream> {
             Ok(quote! {
                 #[doc = #doc]
                 #[derive( #( #derives ),* )]
+                #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
                 #( #input_attrs )*
                 #vis struct #incoming_ident #ty_gen #struct_def
 

@@ -48,6 +48,7 @@ impl Response {
 /// Information about a room member.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RoomMember {
     /// The display name of the user.
     #[serde(skip_serializing_if = "Option::is_none")]

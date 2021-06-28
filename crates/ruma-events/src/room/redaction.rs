@@ -9,6 +9,7 @@ use crate::Unsigned;
 
 /// Redaction event.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[allow(clippy::exhaustive_structs)]
 pub struct RedactionEvent {
     /// Data specific to the event type.
@@ -35,6 +36,7 @@ pub struct RedactionEvent {
 
 /// Redaction event without a `room_id`.
 #[derive(Clone, Debug, Event)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[allow(clippy::exhaustive_structs)]
 pub struct SyncRedactionEvent {
     /// Data specific to the event type.
@@ -58,6 +60,7 @@ pub struct SyncRedactionEvent {
 
 /// A redaction of an event.
 #[derive(Clone, Debug, Default, Deserialize, Serialize, EventContent)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 #[ruma_event(type = "m.room.redaction", kind = Message)]
 pub struct RedactionEventContent {

@@ -21,6 +21,7 @@ use crate::EventType;
 /// Enum for PDU schemas
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(untagged)]
 pub enum Pdu {
     /// PDU for room versions 1 and 2.
@@ -32,6 +33,7 @@ pub enum Pdu {
 
 /// A 'persistent data unit' (event) for room versions 1 and 2.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[allow(clippy::exhaustive_structs)]
 pub struct RoomV1Pdu {
     /// Event ID for the PDU.
@@ -95,6 +97,7 @@ pub struct RoomV1Pdu {
 
 /// A 'persistent data unit' (event) for room versions 3 and beyond.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[allow(clippy::exhaustive_structs)]
 pub struct RoomV3Pdu {
     /// The room this event belongs to.
@@ -153,6 +156,7 @@ pub struct RoomV3Pdu {
 
 /// Content hashes of a PDU.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 pub struct EventHash {
     /// The SHA-256 hash.

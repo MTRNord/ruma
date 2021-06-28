@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 /// Summary of all reactions with the given key to an event.
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct BundledReaction {
     /// The key (emoji) used for reaction.
     pub key: String,
@@ -35,6 +36,7 @@ impl BundledReaction {
 /// Type of bundled annotation.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "type")]
 pub enum BundledAnnotation {
     /// An emoji reaction and its count.
@@ -45,6 +47,7 @@ pub enum BundledAnnotation {
 /// The first chunk of annotations with a token for loading more.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct AnnotationChunk {
     /// The first batch of bundled annotations.
     pub chunk: Vec<BundledAnnotation>,
@@ -64,6 +67,7 @@ impl AnnotationChunk {
 /// Precompiled list of relations to this event grouped by relation type.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Relations {
     /// Annotation relations.
     #[serde(rename = "m.annotation")]

@@ -1,3 +1,5 @@
+extern crate arbitrary_cr as arbitrary;
+
 use std::{
     cmp::Reverse,
     collections::{BTreeMap, BTreeSet, BinaryHeap},
@@ -34,6 +36,7 @@ pub type EventMap<T> = BTreeMap<EventId, T>;
 
 #[derive(Default)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct StateResolution;
 
 impl StateResolution {

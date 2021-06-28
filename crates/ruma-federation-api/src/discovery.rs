@@ -15,6 +15,7 @@ pub mod get_server_version;
 /// Public key of the homeserver for verifying digital signatures.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct VerifyKey {
     /// The Unpadded Base64 encoded key.
     pub key: String,
@@ -30,6 +31,7 @@ impl VerifyKey {
 /// A key the server used to use, but stopped using.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct OldVerifyKey {
     /// Timestamp when this key expired.
     pub expired_ts: MilliSecondsSinceUnixEpoch,
@@ -49,6 +51,7 @@ impl OldVerifyKey {
 /// Queried server key, signed by the notary server.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ServerSigningKeys {
     /// DNS name of the homeserver.
     pub server_name: ServerNameBox,

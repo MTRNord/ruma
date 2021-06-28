@@ -8,6 +8,8 @@
 #![warn(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
+extern crate arbitrary_cr as arbitrary;
+
 pub mod error;
 pub mod r0;
 pub mod unversioned;
@@ -15,6 +17,7 @@ pub mod unversioned;
 pub use error::Error;
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[doc(hidden)]
 pub struct Private {
     _priv: (),

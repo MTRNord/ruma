@@ -18,12 +18,11 @@
 #[cfg(not(all(feature = "client", feature = "server")))]
 compile_error!("ruma_api's Cargo features only exist as a workaround are not meant to be disabled");
 
+extern crate arbitrary_cr as arbitrary;
 use std::{convert::TryInto as _, error::Error as StdError};
 
 use bytes::BufMut;
 use http::Method;
-use ruma_identifiers::UserId;
-
 /// Generates a `ruma_api::Endpoint` from a concise definition.
 ///
 /// The macro expects the following structure as input:
@@ -196,6 +195,7 @@ use ruma_identifiers::UserId;
 /// }
 /// ```
 pub use ruma_api_macros::ruma_api;
+use ruma_identifiers::UserId;
 
 pub mod error;
 /// This module is used to support the generated code from ruma-api-macros.
@@ -214,6 +214,7 @@ use error::{FromHttpRequestError, FromHttpResponseError, IntoHttpError};
 
 /// An enum to control whether an access token should be added to outgoing requests
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum SendAccessToken<'a> {
     /// Add the given access token to the request only if the `METADATA` on the request requires it
     IfRequired(&'a str),
@@ -370,6 +371,7 @@ pub trait IncomingNonAuthRequest: IncomingRequest {}
 
 /// Authentication scheme used by the endpoint.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum AuthScheme {
     /// No authentication is performed.
     None,
@@ -391,6 +393,7 @@ pub enum AuthScheme {
 /// Metadata about an API endpoint.
 #[derive(Clone, Debug)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Metadata {
     /// A human-readable description of the endpoint.
     pub description: &'static str,

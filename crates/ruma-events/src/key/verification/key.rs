@@ -16,6 +16,7 @@ pub type KeyEvent = MessageEvent<KeyEventContent>;
 /// The payload for a to-device `KeyEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.key.verification.key", kind = ToDevice)]
 pub struct KeyToDeviceEventContent {
     /// An opaque identifier for the verification process.
@@ -39,6 +40,7 @@ impl KeyToDeviceEventContent {
 #[cfg(feature = "unstable-pre-spec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "unstable-pre-spec")))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.key.verification.key", kind = Message)]
 pub struct KeyEventContent {
     /// The device's ephemeral public key, encoded as unpadded Base64.

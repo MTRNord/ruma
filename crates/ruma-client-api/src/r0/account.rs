@@ -23,6 +23,7 @@ use serde::Serialize;
 /// Additional authentication information for requestToken endpoints.
 #[derive(Clone, Debug, Outgoing, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct IdentityServerInfo<'a> {
     /// The ID server to send the onward request to as a hostname with an
     /// appended colon and port number if the port is not the default.
@@ -42,6 +43,7 @@ impl<'a> IdentityServerInfo<'a> {
 /// Possible values for deleting or unbinding 3PIDs.
 #[derive(Clone, Debug, StringEnum)]
 #[ruma_enum(rename_all = "kebab-case")]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum ThirdPartyIdRemovalStatus {
     /// Either the homeserver couldn't determine the right identity server to contact, or the
     /// identity server refused the operation.

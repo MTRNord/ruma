@@ -203,6 +203,7 @@ struct Baz {
 type EntryIterator<'de> = btree_map::IntoIter<Part<'de>, ValOrVec<Part<'de>>>;
 
 #[derive(PartialEq, PartialOrd, Eq, Ord)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct Part<'de>(Cow<'de, str>);
 
 impl<'de> IntoDeserializer<'de> for Part<'de> {
@@ -303,6 +304,7 @@ impl<'de> de::Deserializer<'de> for Part<'de> {
     }
 }
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct ValueEnumAccess<'de>(Cow<'de, str>);
 
 impl<'de> de::EnumAccess<'de> for ValueEnumAccess<'de> {
@@ -318,6 +320,7 @@ impl<'de> de::EnumAccess<'de> for ValueEnumAccess<'de> {
     }
 }
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct UnitOnlyVariantAccess;
 
 impl<'de> de::VariantAccess<'de> for UnitOnlyVariantAccess {

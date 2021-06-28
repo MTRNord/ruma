@@ -22,6 +22,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 default = ["serde"]
 compat = ["ruma-identifiers-validation/compat"]
 serde = ["ruma-serde", "serde1"]
+arbitrary = ["arbitrary_cr", "ruma-identifiers-validation/arbitrary", "ruma-serde-macros/arbitrary"]
 
 [dependencies]
 either = { version = "1.6.1", optional = true }
@@ -33,6 +34,7 @@ ruma-serde = { version = "0.4.1", path = "../ruma-serde", optional = true }
 ruma-serde-macros = { version = "0.4.1", path = "../ruma-serde-macros" }
 # Renamed so we can have a serde feature.
 serde1 = { package = "serde", version = "1.0.126", optional = true, features = ["derive"] }
+arbitrary_cr = { package = "arbitrary", version = "1", optional = true, features = ["derive"] }
 
 [dev-dependencies]
 matches = "0.1.8"

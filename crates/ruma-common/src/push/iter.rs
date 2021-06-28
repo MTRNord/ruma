@@ -7,6 +7,7 @@ use super::{
 
 /// The kinds of push rules that are available.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum AnyPushRule {
     /// Rules that override all other kinds.
     Override(ConditionalPushRule),
@@ -75,6 +76,7 @@ impl Extend<AnyPushRule> for Ruleset {
 
 /// Iterator type for `Ruleset`
 #[derive(Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RulesetIntoIter {
     content: IndexSetIntoIter<PatternedPushRule>,
     override_: IndexSetIntoIter<ConditionalPushRule>,
@@ -114,6 +116,7 @@ impl IntoIterator for Ruleset {
 
 /// Reference to any kind of push rule.
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum AnyPushRuleRef<'a> {
     /// Rules that override all other kinds.
     Override(&'a ConditionalPushRule),
@@ -201,6 +204,7 @@ impl<'a> AnyPushRuleRef<'a> {
 
 /// Iterator type for `Ruleset`
 #[derive(Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RulesetIter<'a> {
     content: IndexSetIter<'a, PatternedPushRule>,
     override_: IndexSetIter<'a, ConditionalPushRule>,

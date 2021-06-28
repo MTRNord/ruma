@@ -28,6 +28,7 @@ ruma_api! {
 /// Send a state event to a room associated with a given state key.
 #[derive(Clone, Debug, Outgoing)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[incoming_derive(!Deserialize)]
 pub struct Request<'a> {
     /// The room to set the state in.

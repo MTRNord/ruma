@@ -4,6 +4,7 @@ use serde::ser;
 
 use super::Error;
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct PartSerializer<S> {
     sink: S,
 }
@@ -14,6 +15,7 @@ impl<S: Sink> PartSerializer<S> {
     }
 }
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub trait Sink: Sized {
     type Ok;
     type SerializeSeq: ser::SerializeSeq<Ok = Self::Ok, Error = Error>;

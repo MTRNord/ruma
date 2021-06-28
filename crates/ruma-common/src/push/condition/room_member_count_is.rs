@@ -11,6 +11,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 ///
 /// Used by `RoomMemberCountIs`. Defaults to `==`.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum ComparisonOperator {
     /// Equals
     Eq,
@@ -62,6 +63,7 @@ impl Default for ComparisonOperator {
 /// ```
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RoomMemberCountIs {
     /// One of `==`, `<`, `>`, `>=`, `<=`, or no prefix.
     pub prefix: ComparisonOperator,

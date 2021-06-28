@@ -9,6 +9,7 @@ use serde_json::value::RawValue as RawJsonValue;
 /// See <https://matrix.org/docs/spec/client_server/r0.6.0#actions> for details.
 #[derive(Clone, Debug)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum Action {
     /// Causes matching events to generate a notification.
     Notify,
@@ -28,6 +29,7 @@ pub enum Action {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 #[serde(from = "tweak_serde::Tweak", into = "tweak_serde::Tweak")]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum Tweak {
     /// A string representing the sound to be played when this notification arrives.
     ///
@@ -117,6 +119,7 @@ mod tweak_serde {
     /// Values for the `set_tweak` action.
     #[derive(Clone, Deserialize, Serialize)]
     #[serde(untagged)]
+    #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
     pub(crate) enum Tweak {
         Sound(SoundTweak),
         Highlight(HighlightTweak),
@@ -128,12 +131,14 @@ mod tweak_serde {
     }
 
     #[derive(Clone, PartialEq, Deserialize, Serialize)]
+    #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
     #[serde(tag = "set_tweak", rename = "sound")]
     pub(crate) struct SoundTweak {
         value: String,
     }
 
     #[derive(Clone, PartialEq, Deserialize, Serialize)]
+    #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
     #[serde(tag = "set_tweak", rename = "highlight")]
     pub(crate) struct HighlightTweak {
         #[serde(default = "ruma_serde::default_true", skip_serializing_if = "ruma_serde::is_true")]

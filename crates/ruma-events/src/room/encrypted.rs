@@ -24,6 +24,7 @@ pub type EncryptedEvent = MessageEvent<EncryptedEventContent>;
 /// The content payload for `EncryptedEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room.encrypted", kind = Message, kind = ToDevice)]
 pub struct EncryptedEventContent {
     /// Encrypted event content
@@ -56,6 +57,7 @@ impl From<EncryptedEventScheme> for EncryptedEventContent {
 /// The encryption scheme for `EncryptedEventContent`
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "algorithm")]
 pub enum EncryptedEventScheme {
     /// An event encrypted with *m.olm.v1.curve25519-aes-sha2*.
@@ -72,6 +74,7 @@ pub enum EncryptedEventScheme {
 /// Outside of the encrypted payload to support server aggregation.
 #[derive(Clone, Debug)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum Relation {
     /// An `m.in_reply_to` relation indicating that the event is a reply to another event.
     Reply {
@@ -100,6 +103,7 @@ pub enum Relation {
 #[cfg(feature = "unstable-pre-spec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "unstable-pre-spec")))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Reference {
     /// The event we are referencing.
     pub event_id: EventId,
@@ -118,6 +122,7 @@ impl Reference {
 #[cfg(feature = "unstable-pre-spec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "unstable-pre-spec")))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Annotation {
     /// The event that is being annotated.
     pub event_id: EventId,
@@ -137,6 +142,7 @@ impl Annotation {
 /// The payload for `EncryptedEvent` using the *m.olm.v1.curve25519-aes-sha2* algorithm.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct OlmV1Curve25519AesSha2Content {
     /// A map from the recipient Curve25519 identity key to ciphertext information.
     pub ciphertext: BTreeMap<String, CiphertextInfo>,
@@ -157,6 +163,7 @@ impl OlmV1Curve25519AesSha2Content {
 /// Used for messages encrypted with the *m.olm.v1.curve25519-aes-sha2* algorithm.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct CiphertextInfo {
     /// The encrypted payload.
     pub body: String,
@@ -179,6 +186,7 @@ impl CiphertextInfo {
 /// via `MegolmV1AesSha2Content::from` / `.into()`.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct MegolmV1AesSha2Content {
     /// The encrypted content of the event.
     pub ciphertext: String,
@@ -199,6 +207,7 @@ pub struct MegolmV1AesSha2Content {
 /// in a new (non-breaking) release of the Matrix specification.
 #[derive(Clone, Debug)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct MegolmV1AesSha2ContentInit {
     /// The encrypted content of the event.
     pub ciphertext: String,

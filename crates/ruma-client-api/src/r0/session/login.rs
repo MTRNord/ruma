@@ -78,6 +78,7 @@ impl Response {
 /// Identification information for the user.
 #[derive(Clone, Debug, PartialEq, Eq, Outgoing, Serialize)]
 #[serde(from = "user_serde::IncomingUserIdentifier", into = "user_serde::UserIdentifier<'_>")]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum UserIdentifier<'a> {
     /// Either a fully qualified Matrix user ID, or just the localpart (as part of the 'identifier'
     /// field).
@@ -106,6 +107,7 @@ pub enum UserIdentifier<'a> {
 /// The authentication mechanism.
 #[derive(Clone, Debug, PartialEq, Eq, Outgoing, Serialize)]
 #[serde(tag = "type")]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum LoginInfo<'a> {
     /// An identifier and password are supplied to authenticate.
     #[serde(rename = "m.login.password")]
@@ -127,6 +129,7 @@ pub enum LoginInfo<'a> {
 /// Client configuration provided by the server.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct DiscoveryInfo {
     /// Information about the homeserver to connect to.
     #[serde(rename = "m.homeserver")]
@@ -147,6 +150,7 @@ impl DiscoveryInfo {
 /// Information about the homeserver to connect to.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct HomeserverInfo {
     /// The base URL for the homeserver for client-server connections.
     pub base_url: String,
@@ -162,6 +166,7 @@ impl HomeserverInfo {
 /// Information about the identity server to connect to.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct IdentityServerInfo {
     /// The base URL for the identity server for client-server connections.
     pub base_url: String,

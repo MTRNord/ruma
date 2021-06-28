@@ -24,6 +24,7 @@ use crate::{server_name::ServerName, RoomAliasId, RoomId};
 /// );
 /// ```
 #[derive(Clone)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RoomIdOrAliasId {
     full_id: Box<str>,
     colon_idx: NonZeroU8,
@@ -81,6 +82,7 @@ impl RoomIdOrAliasId {
 }
 
 #[derive(PartialEq)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 enum Variant {
     RoomId,
     RoomAliasId,

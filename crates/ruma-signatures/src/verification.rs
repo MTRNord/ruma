@@ -25,6 +25,7 @@ pub trait Verifier {
 
 /// A verifier for Ed25519 digital signatures.
 #[derive(Debug, Default, PartialEq)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Ed25519Verifier;
 
 impl Verifier for Ed25519Verifier {
@@ -50,6 +51,7 @@ impl Verifier for Ed25519Verifier {
 /// that the event has been redacted. In this case, receiving homeservers should store a redacted
 /// version of the event.
 #[derive(Clone, Debug, Hash, PartialEq)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum Verified {
     /// All signatures are valid and the content hashes match.
     All,

@@ -39,6 +39,7 @@ pub fn to_string<T: ser::Serialize>(input: T) -> Result<String, Error> {
 ///   unit variants.
 ///
 /// * Newtype structs defer to their inner values.
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Serializer<'input, 'output, Target: UrlEncodedTarget> {
     urlencoder: &'output mut UrlEncodedSerializer<'input, Target>,
 }
@@ -52,6 +53,7 @@ impl<'input, 'output, Target: UrlEncodedTarget> Serializer<'input, 'output, Targ
 
 /// Errors returned during serializing to `application/x-www-form-urlencoded`.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum Error {
     /// UTF-8 validation failed.
     Utf8(str::Utf8Error),
@@ -93,6 +95,7 @@ impl ser::Error for Error {
 }
 
 /// Sequence serializer.
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct SeqSerializer<'input, 'output, Target: UrlEncodedTarget> {
     urlencoder: &'output mut UrlEncodedSerializer<'input, Target>,
 }
@@ -100,6 +103,7 @@ pub struct SeqSerializer<'input, 'output, Target: UrlEncodedTarget> {
 /// Tuple serializer.
 ///
 /// Mostly used for arrays.
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct TupleSerializer<'input, 'output, Target: UrlEncodedTarget> {
     urlencoder: &'output mut UrlEncodedSerializer<'input, Target>,
 }
@@ -107,6 +111,7 @@ pub struct TupleSerializer<'input, 'output, Target: UrlEncodedTarget> {
 /// Tuple struct serializer.
 ///
 /// Never instantiated, tuple structs are not supported.
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct TupleStructSerializer<'input, 'output, T: UrlEncodedTarget> {
     inner: ser::Impossible<&'output mut UrlEncodedSerializer<'input, T>, Error>,
 }
@@ -114,17 +119,20 @@ pub struct TupleStructSerializer<'input, 'output, T: UrlEncodedTarget> {
 /// Tuple variant serializer.
 ///
 /// Never instantiated, tuple variants are not supported.
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct TupleVariantSerializer<'input, 'output, T: UrlEncodedTarget> {
     inner: ser::Impossible<&'output mut UrlEncodedSerializer<'input, T>, Error>,
 }
 
 /// Map serializer.
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct MapSerializer<'input, 'output, Target: UrlEncodedTarget> {
     urlencoder: &'output mut UrlEncodedSerializer<'input, Target>,
     key: Option<Cow<'static, str>>,
 }
 
 /// Struct serializer.
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct StructSerializer<'input, 'output, Target: UrlEncodedTarget> {
     urlencoder: &'output mut UrlEncodedSerializer<'input, Target>,
 }
@@ -132,6 +140,7 @@ pub struct StructSerializer<'input, 'output, Target: UrlEncodedTarget> {
 /// Struct variant serializer.
 ///
 /// Never instantiated, struct variants are not supported.
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct StructVariantSerializer<'input, 'output, T: UrlEncodedTarget> {
     inner: ser::Impossible<&'output mut UrlEncodedSerializer<'input, T>, Error>,
 }

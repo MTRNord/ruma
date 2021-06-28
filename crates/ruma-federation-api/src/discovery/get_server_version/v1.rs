@@ -41,6 +41,7 @@ impl Response {
 /// Arbitrary values that identify this implementation.
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Server {
     /// Arbitrary name that identifies this implementation.
     #[serde(skip_serializing_if = "Option::is_none")]

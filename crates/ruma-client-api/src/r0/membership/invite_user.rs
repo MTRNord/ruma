@@ -59,6 +59,7 @@ impl Response {
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 #[incoming_derive(PartialEq)]
 #[serde(untagged)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum InvitationRecipient<'a> {
     /// Used to invite user by their Matrix identifer.
     UserId {

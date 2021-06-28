@@ -35,6 +35,7 @@ use crate::cow::MyCowStr;
 ///     .deserialize() // deserialize to the inner type
 ///     .unwrap(); // finally get to the AnyRoomEvent
 /// ```
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Raw<T> {
     json: Box<RawValue>,
     _ev: PhantomData<T>,

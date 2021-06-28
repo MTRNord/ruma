@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 /// The payload for `RoomKeyRequestEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room_key_request", kind = ToDevice)]
 pub struct RoomKeyRequestToDeviceEventContent {
     /// Whether this is a new key request or a cancellation of a previous request.
@@ -43,6 +44,7 @@ impl RoomKeyRequestToDeviceEventContent {
 
 /// A new key request or a cancellation of a previous request.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum Action {
     /// Request a key.
@@ -59,6 +61,7 @@ pub enum Action {
 /// Information about a requested key.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RequestedKeyInfo {
     /// The encryption algorithm the requested key in this event is to be used with.
     pub algorithm: EventEncryptionAlgorithm,

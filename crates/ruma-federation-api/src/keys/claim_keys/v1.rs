@@ -52,6 +52,7 @@ pub type OneTimeKeys = BTreeMap<UserId, BTreeMap<DeviceIdBox, BTreeMap<DeviceKey
 /// A key and its signature
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct KeyObject {
     /// The key, encoded using unpadded base64.
     pub key: String,

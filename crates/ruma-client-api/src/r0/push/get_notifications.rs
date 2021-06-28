@@ -68,6 +68,7 @@ impl Response {
 /// Represents a notification.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Notification {
     /// The actions to perform when the conditions for this rule are met.
     pub actions: Vec<Action>,

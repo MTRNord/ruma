@@ -20,6 +20,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 client-api = ["ruma-client-api"]
+arbitrary = ["arbitrary_cr", "ruma-api/arbitrary", "ruma-client-api/arbitrary", "ruma-common/arbitrary", "ruma-identifiers/arbitrary", "ruma-serde/arbitrary"]
 
 # HTTP clients
 hyper-native-tls = ["hyper", "hyper-tls"]
@@ -51,6 +52,7 @@ ruma-identifiers = { version = "0.19.4", path = "../ruma-identifiers" }
 ruma-serde = { version = "0.4.1", path = "../ruma-serde" }
 serde = { version = "1.0.118", features = ["derive"] }
 serde_json = "1.0.61"
+arbitrary_cr = { package = "arbitrary", version = "1", optional = true, features = ["derive"] }
 
 [dev-dependencies]
 ruma-client-api = { version = "0.11.0", path = "../ruma-client-api", features = ["client"] }

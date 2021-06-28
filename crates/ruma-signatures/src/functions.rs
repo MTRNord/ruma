@@ -666,6 +666,7 @@ pub fn verify_event(
     }
 }
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct SignatureAndPubkey<'a> {
     signature: &'a CanonicalJsonValue,
     public_key: &'a String,

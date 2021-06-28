@@ -9,6 +9,7 @@ use serde::Serialize;
 // that one is arguably much easier to deal with.
 #[derive(Clone, Debug, PartialEq, Eq, Outgoing, Serialize)]
 #[serde(tag = "type")]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub(crate) enum UserIdentifier<'a> {
     #[serde(rename = "m.id.user")]
     MatrixId { user: &'a str },

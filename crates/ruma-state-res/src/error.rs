@@ -6,6 +6,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 /// Represents the various errors that arise when resolving state.
 #[derive(Error, Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum Error {
     /// A deserialization error.
     #[error(transparent)]

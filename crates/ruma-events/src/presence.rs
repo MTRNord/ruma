@@ -24,6 +24,7 @@ pub struct PresenceEvent {
 /// This is the only type a `PresenceEvent` can contain as its `content` field.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.presence")]
 pub struct PresenceEventContent {
     /// The current avatar URL for this user.

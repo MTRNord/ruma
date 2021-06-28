@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 /// Full state of the room.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RoomState {
     #[cfg(not(feature = "unstable-pre-spec"))]
     #[cfg_attr(docsrs, doc(cfg(not(feature = "unstable-pre-spec"))))]

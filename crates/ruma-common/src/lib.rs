@@ -5,6 +5,8 @@
 #![warn(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
+extern crate arbitrary_cr as arbitrary;
+
 pub mod authentication;
 pub mod directory;
 pub mod encryption;

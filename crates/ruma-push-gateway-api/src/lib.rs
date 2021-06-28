@@ -7,4 +7,6 @@
 
 #![warn(missing_docs)]
 
+extern crate arbitrary_cr as arbitrary;
+
 pub mod send_event_notification;

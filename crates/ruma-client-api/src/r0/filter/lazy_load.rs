@@ -6,6 +6,7 @@ use serde::{ser::SerializeStruct as _, Deserialize, Serialize, Serializer};
 /// [lazy-loading]: https://matrix.org/docs/spec/client_server/r0.6.0#lazy-loading-room-members
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
 #[serde(from = "LazyLoadJsonRepr")]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum LazyLoadOptions {
     /// Disables lazy-loading of membership events.
     Disabled,
@@ -57,6 +58,7 @@ impl Serialize for LazyLoadOptions {
 }
 
 #[derive(Deserialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct LazyLoadJsonRepr {
     lazy_load_members: Option<bool>,
     include_redundant_members: Option<bool>,

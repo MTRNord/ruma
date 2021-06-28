@@ -27,6 +27,8 @@ pub trait KeyPair: Sized {
 pub const ED25519_OID: ObjectIdentifier = ObjectIdentifier::new("1.3.101.112");
 
 /// An Ed25519 key pair.
+
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Ed25519KeyPair {
     extended_privkey: ExpandedSecretKey,
 

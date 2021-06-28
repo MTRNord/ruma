@@ -14,6 +14,7 @@ pub type HangupEvent = MessageEvent<HangupEventContent>;
 /// The payload for `HangupEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.call.hangup", kind = Message)]
 pub struct HangupEventContent {
     /// The ID of the call this event relates to.
@@ -40,6 +41,7 @@ impl HangupEventContent {
 /// error in the call negotiation, this should be `ice_failed` for when ICE negotiation fails or
 /// `invite_timeout` for when the other party did not answer in time.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum Reason {
     /// ICE negotiation failure.

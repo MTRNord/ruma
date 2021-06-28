@@ -9,6 +9,7 @@ use ruma_serde_macros::{AsRefStr, DisplayAsRefStr, FromString};
 /// This type can hold an arbitrary string. To check for algorithms that are not available as a
 /// documented variant here, use its string representation, obtained through `.as_str()`.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, AsRefStr, DisplayAsRefStr, FromString)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[non_exhaustive]
 #[ruma_enum(rename_all = "snake_case")]
 #[cfg_attr(feature = "serde", derive(DeserializeFromCowStr, SerializeAsRefStr))]
@@ -31,6 +32,7 @@ pub enum DeviceKeyAlgorithm {
 /// This type can hold an arbitrary string. To check for algorithms that are not available as a
 /// documented variant here, use its string representation, obtained through `.as_str()`.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, AsRefStr, DisplayAsRefStr, FromString)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[non_exhaustive]
 #[ruma_enum(rename_all = "snake_case")]
 #[cfg_attr(feature = "serde", derive(DeserializeFromCowStr, SerializeAsRefStr))]
@@ -47,6 +49,7 @@ pub enum SigningKeyAlgorithm {
 /// This type can hold an arbitrary string. To check for algorithms that are not available as a
 /// documented variant here, use its string representation, obtained through `.as_str()`.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, AsRefStr, DisplayAsRefStr, FromString)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[non_exhaustive]
 #[cfg_attr(feature = "serde", derive(DeserializeFromCowStr, SerializeAsRefStr))]
 pub enum EventEncryptionAlgorithm {

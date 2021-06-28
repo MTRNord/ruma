@@ -17,6 +17,7 @@ use serde::Serialize;
 /// Format to use for returned events.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
 #[ruma_enum(rename_all = "snake_case")]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum EventFormat {
     /// Client format, as described in the Client API.
     Client,
@@ -38,6 +39,7 @@ impl Default for EventFormat {
 #[derive(Clone, Debug, Default, Outgoing, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 #[incoming_derive(Clone, Default, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RoomEventFilter<'a> {
     /// A list of event types to exclude.
     ///
@@ -145,6 +147,7 @@ impl IncomingRoomEventFilter {
 #[derive(Clone, Debug, Default, Outgoing, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 #[incoming_derive(Clone, Default, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RoomFilter<'a> {
     /// Include rooms that the user has left in the sync.
     ///
@@ -227,6 +230,7 @@ impl IncomingRoomFilter {
 #[derive(Clone, Debug, Default, Outgoing, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 #[incoming_derive(Clone, Default, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Filter<'a> {
     /// A list of event types to exclude.
     ///
@@ -299,6 +303,7 @@ impl IncomingFilter {
 #[derive(Clone, Debug, Default, Outgoing, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 #[incoming_derive(Clone, Default, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct FilterDefinition<'a> {
     /// List of event fields to include.
     ///

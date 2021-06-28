@@ -16,6 +16,7 @@ use crate::MilliSecondsSinceUnixEpoch;
 /// `Protocol::from` / `.into()`.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Protocol {
     /// Fields which may be used to identify a third party user.
     pub user_fields: Vec<String>,
@@ -43,6 +44,7 @@ pub struct Protocol {
 /// (non-breaking) release of the Matrix specification.
 #[derive(Debug)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ProtocolInit {
     /// Fields which may be used to identify a third party user.
     pub user_fields: Vec<String>,
@@ -72,6 +74,7 @@ impl From<ProtocolInit> for Protocol {
 /// To create an instance of this type, first create a `ProtocolInstanceInit` and convert it via
 /// `ProtocolInstance::from` / `.into()`.
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 pub struct ProtocolInstance {
     /// A human-readable description for the protocol, such as the name.
@@ -98,6 +101,7 @@ pub struct ProtocolInstance {
 /// (non-breaking) release of the Matrix specification.
 #[derive(Debug)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ProtocolInstanceInit {
     /// A human-readable description for the protocol, such as the name.
     pub desc: String,
@@ -139,6 +143,7 @@ impl From<ProtocolInstanceInit> for ProtocolInstance {
 /// `FieldType::from` / `.into()`.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct FieldType {
     /// A regular expression for validation of a field's value.
     pub regexp: String,
@@ -153,6 +158,7 @@ pub struct FieldType {
 /// (non-breaking) release of the Matrix specification.
 #[derive(Debug)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct FieldTypeInit {
     /// A regular expression for validation of a field's value.
     pub regexp: String,
@@ -171,6 +177,7 @@ impl From<FieldTypeInit> for FieldType {
 /// A third party network location.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Location {
     /// An alias for a matrix room.
     pub alias: RoomAliasId,
@@ -192,6 +199,7 @@ impl Location {
 /// A third party network user.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct User {
     /// A matrix user ID representing a third party user.
     pub userid: UserId,
@@ -212,6 +220,7 @@ impl User {
 
 /// The medium of a third party identifier.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "lowercase")]
 pub enum Medium {
     /// Email address identifier
@@ -230,6 +239,7 @@ pub enum Medium {
 /// this type using `ThirdPartyIdentifier::Init` / `.into()`.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(test, derive(PartialEq))]
 pub struct ThirdPartyIdentifier {
     /// The third party identifier address.
@@ -251,6 +261,7 @@ pub struct ThirdPartyIdentifier {
 /// in a new (non-breaking) release of the Matrix specification.
 #[derive(Debug)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ThirdPartyIdentifierInit {
     /// The third party identifier address.
     pub address: String,

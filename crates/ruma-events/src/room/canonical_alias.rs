@@ -12,6 +12,7 @@ pub type CanonicalAliasEvent = StateEvent<CanonicalAliasEventContent>;
 /// The payload for `CanonicalAliasEvent`.
 #[derive(Clone, Debug, Default, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room.canonical_alias", kind = State)]
 pub struct CanonicalAliasEventContent {
     /// The canonical alias.

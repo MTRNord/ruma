@@ -4,6 +4,7 @@ use ruma_identifiers::{DeviceId, DeviceIdBox, UserId};
 
 /// A user session, containing an access token and information about the associated user account.
 #[derive(Clone, Debug, serde::Deserialize, Eq, Hash, PartialEq, serde::Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Session {
     /// The access token used for this session.
     pub access_token: String,
@@ -15,6 +16,7 @@ pub struct Session {
 /// The identification information about the associated user account if the session is associated
 /// with a single user account.
 #[derive(Clone, Debug, serde::Deserialize, Eq, Hash, PartialEq, serde::Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Identification {
     /// The user the access token was issued for.
     pub user_id: UserId,

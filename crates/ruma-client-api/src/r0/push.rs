@@ -27,6 +27,7 @@ pub mod set_pushrule_enabled;
 /// To create an instance of this type, use one of its `From` implementations.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct PushRule {
     /// The actions to perform when this rule is matched.
     pub actions: Vec<Action>,
@@ -105,6 +106,7 @@ impl From<PushRule> for SimplePushRule {
 /// be converted into `PatternedPushRule`
 #[derive(Debug)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct MissingPatternError;
 
 impl fmt::Display for MissingPatternError {
@@ -133,6 +135,7 @@ impl TryFrom<PushRule> for PatternedPushRule {
 /// be converted into `ConditionalPushRule`
 #[derive(Debug)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct MissingConditionsError;
 
 impl fmt::Display for MissingConditionsError {
@@ -160,6 +163,7 @@ impl TryFrom<PushRule> for ConditionalPushRule {
 
 /// The kinds of push rules that are available.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum RuleKind {
     /// User-configured rules that override all other kinds.
@@ -183,6 +187,7 @@ pub enum RuleKind {
 
 /// Which kind a pusher is.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum PusherKind {
     /// A pusher that sends HTTP pokes.

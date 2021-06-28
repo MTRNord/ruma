@@ -6,6 +6,7 @@ use ruma_identifiers_validation::server_name::validate;
 /// A Matrix-spec compliant server name.
 #[repr(transparent)]
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize), serde(transparent, crate = "serde"))]
 pub struct ServerName(str);
 

@@ -7,6 +7,7 @@ use serde::de::{
 };
 
 #[derive(Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum ValOrVec<T> {
     Val(T),
     Vec(Vec<T>),
@@ -58,6 +59,7 @@ impl<T> IntoIterator for ValOrVec<T> {
     }
 }
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum IntoIter<T> {
     Val(iter::Once<T>),
     Vec(vec::IntoIter<T>),

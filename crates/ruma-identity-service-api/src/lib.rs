@@ -7,6 +7,8 @@
 
 #![warn(missing_docs)]
 
+extern crate arbitrary_cr as arbitrary;
+
 pub mod association;
 pub mod authentication;
 pub mod invitation;

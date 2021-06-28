@@ -13,6 +13,7 @@ pub mod update_device;
 /// Information about a registered device.
 #[derive(Clone, Debug, Deserialize, Hash, PartialEq, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Device {
     /// Device ID
     pub device_id: DeviceIdBox,

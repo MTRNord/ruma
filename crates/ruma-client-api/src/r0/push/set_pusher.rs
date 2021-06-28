@@ -53,6 +53,7 @@ impl Response {
 /// `Pusher::from` / `.into()`.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Pusher {
     /// This is a unique identifier for this pusher. Max length, 512 bytes.
     pub pushkey: String,
@@ -86,6 +87,7 @@ pub struct Pusher {
 /// (non-breaking) release of the Matrix specification.
 #[derive(Debug)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct PusherInit {
     /// This is a unique identifier for this pusher. Max length, 512 bytes.
     pub pushkey: String,

@@ -6,6 +6,7 @@ use crate::{split_id, Algorithm, Error};
 
 /// A digital signature.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Signature {
     /// The cryptographic algorithm that generated this signature.
     pub(crate) algorithm: Algorithm,

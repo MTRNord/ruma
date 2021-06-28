@@ -31,6 +31,7 @@ pub mod topic;
 /// Metadata about an image.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ImageInfo {
     /// The height of the image in pixels.
     #[serde(rename = "h", skip_serializing_if = "Option::is_none")]
@@ -81,6 +82,7 @@ impl ImageInfo {
 /// Metadata about a thumbnail.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ThumbnailInfo {
     /// The height of the thumbnail in pixels.
     #[serde(rename = "h", skip_serializing_if = "Option::is_none")]
@@ -112,6 +114,7 @@ impl ThumbnailInfo {
 /// `EncryptedFile::from` / `.into()`.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct EncryptedFile {
     /// The URL to the file.
     pub url: MxcUri,
@@ -135,6 +138,7 @@ pub struct EncryptedFile {
 /// This struct will not be updated even if additional fields are added to `EncryptedFile` in a new
 /// (non-breaking) release of the Matrix specification.
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct EncryptedFileInit {
     /// The URL to the file.
     pub url: MxcUri,
@@ -166,6 +170,7 @@ impl From<EncryptedFileInit> for EncryptedFile {
 /// `JsonWebKey::from` / `.into()`.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct JsonWebKey {
     /// Key type. Must be `oct`.
     pub kty: String,
@@ -189,6 +194,7 @@ pub struct JsonWebKey {
 /// This struct will not be updated even if additional fields are added to `JsonWebKey` in a new
 /// (non-breaking) release of the Matrix specification.
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct JsonWebKeyInit {
     /// Key type. Must be `oct`.
     pub kty: String,

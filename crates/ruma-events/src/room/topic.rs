@@ -11,6 +11,7 @@ pub type TopicEvent = StateEvent<TopicEventContent>;
 /// The payload for `TopicEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room.topic", kind = State)]
 pub struct TopicEventContent {
     /// The topic text.

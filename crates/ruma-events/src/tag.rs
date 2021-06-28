@@ -17,6 +17,7 @@ pub type Tags = BTreeMap<TagName, TagInfo>;
 /// The payload for `TagEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.tag", kind = RoomAccountData)]
 pub struct TagEventContent {
     /// A map of tag names to tag info.
@@ -38,6 +39,7 @@ impl From<Tags> for TagEventContent {
 
 /// A user-defined tag name.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct UserTagName {
     name: String,
 }
@@ -63,6 +65,7 @@ impl FromStr for UserTagName {
 /// An error returned when attempting to create a UserTagName with a string that would make it
 /// invalid.
 #[derive(Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[allow(clippy::exhaustive_structs)]
 pub struct InvalidUserTagName;
 
@@ -76,6 +79,7 @@ impl Error for InvalidUserTagName {}
 
 /// The name of a tag.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 pub enum TagName {
     /// `m.favourite`: The user's favorite rooms. These should be shown with higher precedence
@@ -168,6 +172,7 @@ impl Serialize for TagName {
 /// Information about a tag.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct TagInfo {
     /// Value to use for lexicographically ordering rooms with this tag.
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -117,6 +117,7 @@ impl Response {
 /// servers are supposed to ignore.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct CreationContent {
     /// Whether users on other servers can join this room.
     ///
@@ -197,6 +198,7 @@ impl Default for CreationContent {
 /// A convenience parameter for setting a few default state events.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
 #[ruma_enum(rename_all = "snake_case")]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum RoomPreset {
     /// `join_rules` is set to `invite` and `history_visibility` is set to `shared`.
     PrivateChat,

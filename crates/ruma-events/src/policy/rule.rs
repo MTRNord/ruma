@@ -10,6 +10,7 @@ pub mod user;
 /// The payload for policy rule events.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct PolicyRuleEventContent {
     /// The entity affected by this rule. Glob characters * and ? can be used to match zero or more
     /// and one or more characters respectively.
@@ -31,6 +32,7 @@ impl PolicyRuleEventContent {
 
 /// Rules recommendations
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum Recommendation {
     /// Entities affected by the rule should be banned from participation where possible.
     #[ruma_enum(rename = "m.ban")]

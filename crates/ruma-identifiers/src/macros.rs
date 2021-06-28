@@ -166,6 +166,7 @@ macro_rules! opaque_identifier {
     ) => {
         $( #[doc = $docs] )*
         #[repr(transparent)]
+        #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
         pub struct $id(str);
 
         paste::paste! {

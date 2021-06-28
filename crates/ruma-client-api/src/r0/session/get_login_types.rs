@@ -50,6 +50,7 @@ impl Response {
 /// An authentication mechanism.
 #[derive(Clone, Debug, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(untagged)]
 pub enum LoginType {
     /// A password is supplied to authenticate.
@@ -119,6 +120,7 @@ impl LoginType {
 /// The payload for password login.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "type", rename = "m.login.password")]
 pub struct PasswordLoginType {}
 
@@ -132,6 +134,7 @@ impl PasswordLoginType {
 /// The payload for token-based login.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "type", rename = "m.login.token")]
 pub struct TokenLoginType {}
 
@@ -145,6 +148,7 @@ impl TokenLoginType {
 /// The payload for SSO login.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "type", rename = "m.login.sso")]
 pub struct SsoLoginType {
     /// The identity provider choices.
@@ -172,6 +176,7 @@ impl SsoLoginType {
 #[cfg(feature = "unstable-pre-spec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "unstable-pre-spec")))]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct IdentityProvider {
     /// The ID of the provider.
@@ -203,6 +208,7 @@ impl IdentityProvider {
 #[cfg_attr(docsrs, doc(cfg(feature = "unstable-pre-spec")))]
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum IdentityProviderBrand {
     /// The [Apple] brand.
     ///
@@ -241,6 +247,7 @@ pub enum IdentityProviderBrand {
 #[doc(hidden)]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct CustomLoginType {
     /// A custom type
     ///

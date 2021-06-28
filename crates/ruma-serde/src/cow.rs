@@ -2,6 +2,7 @@ use std::{borrow::Cow, str};
 
 use serde::de::{self, Deserialize, Deserializer, Unexpected, Visitor};
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub(crate) struct MyCowStr<'a>(Cow<'a, str>);
 
 impl<'a> MyCowStr<'a> {
@@ -33,6 +34,7 @@ where
     deserializer.deserialize_string(CowStrVisitor)
 }
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct CowStrVisitor;
 
 impl<'de> Visitor<'de> for CowStrVisitor {

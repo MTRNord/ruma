@@ -74,6 +74,7 @@ ruma_api! {
 /// new (non-breaking) release of the Matrix specification.
 #[derive(Debug)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct RequestInit<'a> {
     /// The room ID that is about to be left.
     pub room_id: &'a RoomId,

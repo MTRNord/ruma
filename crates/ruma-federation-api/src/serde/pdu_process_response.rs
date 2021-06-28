@@ -8,6 +8,7 @@ use serde::{
 };
 
 #[derive(Deserialize, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct WrappedError {
     #[serde(skip_serializing_if = "Option::is_none")]
     error: Option<String>,

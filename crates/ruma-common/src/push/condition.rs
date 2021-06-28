@@ -17,6 +17,7 @@ pub use room_member_count_is::{ComparisonOperator, RoomMemberCountIs};
 /// A condition that must apply for an associated push rule's action to be taken.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum PushCondition {
     /// This is a glob pattern match on a field of the event.
@@ -114,6 +115,7 @@ impl PushCondition {
 /// The context of the room associated to an event to be able to test all push conditions.
 #[derive(Clone, Debug)]
 #[allow(clippy::exhaustive_structs)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct PushConditionRoomCtx {
     /// The ID of the room.
     pub room_id: RoomId,
@@ -264,6 +266,7 @@ impl StrExt for str {
 
 /// The flattened representation of a JSON object.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct FlattenedJson {
     /// The internal map containing the flattened JSON as a pair path, value.
     map: BTreeMap<String, String>,

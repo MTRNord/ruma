@@ -10,6 +10,7 @@ use super::VerificationMethod;
 /// The payload for `RequestEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.key.verification.request", kind = ToDevice)]
 pub struct RequestToDeviceEventContent {
     /// The device ID which is initiating the request.

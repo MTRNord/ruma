@@ -34,6 +34,7 @@ where
     deserializer.deserialize_seq(PduVisitor { phantom: PhantomData })
 }
 
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 struct PduVisitor<T> {
     phantom: PhantomData<T>,
 }

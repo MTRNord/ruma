@@ -57,6 +57,7 @@ impl Response {
 /// Categories of events that can be searched for.
 #[derive(Clone, Debug, Default, Outgoing, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Categories<'a> {
     /// Criteria for searching room events.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -73,6 +74,7 @@ impl Categories<'_> {
 /// Criteria for searching a category of events.
 #[derive(Clone, Debug, Outgoing, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Criteria<'a> {
     /// The string to search events for.
     pub search_term: &'a str,
@@ -120,6 +122,7 @@ impl<'a> Criteria<'a> {
 /// Configures whether any context for the events returned are included in the response.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct EventContext {
     /// How many events before the result are returned.
     #[serde(
@@ -177,6 +180,7 @@ impl Default for EventContext {
 /// Context for search results, if requested.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct EventContextResult {
     /// Pagination token for the end of the chunk.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -218,6 +222,7 @@ impl EventContextResult {
 /// A grouping for partioning the result set.
 #[derive(Clone, Default, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Grouping {
     /// The key within events to use for this grouping.
     pub key: Option<GroupingKey>,
@@ -238,6 +243,7 @@ impl Grouping {
 /// The key within events to use for this grouping.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, StringEnum)]
 #[ruma_enum(rename_all = "snake_case")]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum GroupingKey {
     /// `room_id`
     RoomId,
@@ -253,6 +259,7 @@ pub enum GroupingKey {
 #[derive(Clone, Default, Debug, Outgoing, Serialize)]
 #[incoming_derive(Default)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct Groupings<'a> {
     /// List of groups to request.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
@@ -273,6 +280,7 @@ impl Groupings<'_> {
 
 /// The keys to search for.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum SearchKeys {
     /// content.body
     #[ruma_enum(rename = "content.body")]
@@ -294,6 +302,7 @@ pub enum SearchKeys {
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
 #[ruma_enum(rename_all = "snake_case")]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum OrderBy {
     /// Prioritize recent events.
     Recent,
@@ -309,6 +318,7 @@ pub enum OrderBy {
 /// Categories of events that can be searched for.
 #[derive(Clone, Default, Debug, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ResultCategories {
     /// Room event results.
     #[serde(default, skip_serializing_if = "ResultRoomEvents::is_empty")]
@@ -325,6 +335,7 @@ impl ResultCategories {
 /// Categories of events that can be searched for.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ResultRoomEvents {
     /// An approximate count of the total number of results found.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -374,6 +385,7 @@ impl ResultRoomEvents {
 /// A grouping of results, if requested.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ResultGroup {
     /// Token that can be used to get the next batch of results in the group, by passing as the
     /// `next_batch` parameter to the next call. If this field is absent, there are no more
@@ -405,6 +417,7 @@ impl ResultGroup {
 /// A search result.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct SearchResult {
     /// Context for result, if requested.
     #[serde(skip_serializing_if = "EventContextResult::is_empty")]
@@ -434,6 +447,7 @@ impl SearchResult {
 /// A user profile.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct UserProfile {
     /// The user's avatar URL, if set.
     ///
@@ -465,6 +479,7 @@ impl UserProfile {
 
 /// Represents either a room or user ID for returning grouped search results.
 #[derive(Clone, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum RoomIdOrUserId {
     /// Represents a room ID.
     RoomId(RoomId),

@@ -16,6 +16,7 @@ pub type FeedbackEvent = MessageEvent<FeedbackEventContent>;
 /// The payload for `FeedbackEvent`.
 #[derive(Clone, Debug, Deserialize, Serialize, EventContent)]
 #[cfg_attr(not(feature = "unstable-exhaustive-types"), non_exhaustive)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_event(type = "m.room.message.feedback", kind = Message)]
 pub struct FeedbackEventContent {
     /// The event that this feedback is related to.
@@ -35,6 +36,7 @@ impl FeedbackEventContent {
 
 /// A type of feedback.
 #[derive(Clone, Debug, PartialEq, Eq, StringEnum)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[ruma_enum(rename_all = "snake_case")]
 pub enum FeedbackType {
     /// Sent when a message is received.
