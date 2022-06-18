@@ -1,13 +1,12 @@
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use syn::{Fields, FieldsNamed, FieldsUnnamed, ItemEnum};
 
 use super::{
     attr::EnumAttrs,
     util::{get_enum_attributes, get_rename_rule},
 };
 
-pub fn expand_enum_as_ref_str(input: &ItemEnum) -> syn::Result<TokenStream> {
+pub fn expand_enum_as_ref_str(input: &ItemEnum) -> Result<TokenStream, venial::Error> {
     let enum_name = &input.ident;
     let rename_rule = get_rename_rule(input)?;
     let branches: Vec<_> = input
@@ -25,7 +24,7 @@ pub fn expand_enum_as_ref_str(input: &ItemEnum) -> syn::Result<TokenStream> {
                 (None, Fields::Named(FieldsNamed { named: fields, .. }))
                 | (None, Fields::Unnamed(FieldsUnnamed { unnamed: fields, .. })) => {
                     if fields.len() != 1 {
-                        return Err(syn::Error::new_spanned(
+                        return Err(venial::Error::new_at_tokens(
                             v,
                             "multiple data fields are not supported",
                         ));
@@ -39,7 +38,7 @@ pub fn expand_enum_as_ref_str(input: &ItemEnum) -> syn::Result<TokenStream> {
                     (Some(capture), quote! { &inner.0 })
                 }
                 (Some(_), _) => {
-                    return Err(syn::Error::new_spanned(
+                    return Err(venial::Error::new_at_tokens(
                         v,
                         "ruma_enum(rename) is only allowed on unit variants",
                     ));
@@ -50,7 +49,7 @@ pub fn expand_enum_as_ref_str(input: &ItemEnum) -> syn::Result<TokenStream> {
                 #enum_name :: #variant_name #field_capture => #variant_str
             })
         })
-        .collect::<syn::Result<_>>()?;
+        .collect::<Result<_, venial::Error>>()?;
 
     Ok(quote! {
         #[automatically_derived]

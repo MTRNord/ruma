@@ -1,13 +1,8 @@
 use std::ops::Not;
 
-use proc_macro2::TokenStream;
+use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
-use syn::{
-    parse::{Parse, ParseStream},
-    punctuated::Punctuated,
-    visit::Visit,
-    DeriveInput, Field, Generics, Ident, Lifetime, Token, Type,
-};
+use venial::{Declaration, Punctuated};
 
 use super::attribute::{DeriveResponseMeta, ResponseMeta};
 use crate::util::import_ruma_common;
@@ -15,13 +10,14 @@ use crate::util::import_ruma_common;
 mod incoming;
 mod outgoing;
 
-pub fn expand_derive_response(input: DeriveInput) -> syn::Result<TokenStream> {
-    let fields = match input.data {
-        syn::Data::Struct(s) => s.fields,
+pub fn expand_derive_response(input: Declaration) -> Result<TokenStream, venial::Error> {
+    let fields = match input {
+        Declaration::Struct(s) => s.fields,
         _ => panic!("This derive macro only works on structs"),
     };
 
-    let fields = fields.into_iter().map(ResponseField::try_from).collect::<syn::Result<_>>()?;
+    let fields =
+        fields.into_iter().map(ResponseField::try_from).collect::<Result<_, venial::Error>>()?;
     let mut manual_body_serde = false;
     let mut error_ty = None;
     for attr in input.attrs {
@@ -29,8 +25,7 @@ pub fn expand_derive_response(input: DeriveInput) -> syn::Result<TokenStream> {
             continue;
         }
 
-        let metas =
-            attr.parse_args_with(Punctuated::<DeriveResponseMeta, Token![,]>::parse_terminated)?;
+        let metas = attr.parse_args_with(Punctuated::<DeriveResponseMeta>::parse_terminated)?;
         for meta in metas {
             match meta {
                 DeriveResponseMeta::ManualBodySerde => manual_body_serde = true,
@@ -40,7 +35,7 @@ pub fn expand_derive_response(input: DeriveInput) -> syn::Result<TokenStream> {
     }
 
     let response = Response {
-        ident: input.ident,
+        ident: input.name,
         generics: input.generics,
         fields,
         manual_body_serde,
@@ -118,7 +113,7 @@ impl Response {
         }
     }
 
-    pub fn check(&self) -> syn::Result<()> {
+    pub fn check(&self) -> Result<(), venial::Error> {
         // TODO: highlight problematic fields
 
         assert!(
@@ -135,7 +130,7 @@ impl Response {
             0 => false,
             1 => true,
             _ => {
-                return Err(syn::Error::new_spanned(
+                return Err(venial::Error::new_at_tokens(
                     &self.ident,
                     "Can't have more than one newtype body field",
                 ))
@@ -144,7 +139,7 @@ impl Response {
 
         let has_body_fields = self.fields.iter().any(|f| matches!(f, ResponseField::Body(_)));
         if has_newtype_body_field && has_body_fields {
-            return Err(syn::Error::new_spanned(
+            return Err(venial::Error::new_at_tokens(
                 &self.ident,
                 "Can't have both a newtype body field and regular body fields",
             ));
@@ -219,11 +214,11 @@ impl ResponseField {
 }
 
 impl TryFrom<Field> for ResponseField {
-    type Error = syn::Error;
+    type Error = venial::Error;
 
-    fn try_from(mut field: Field) -> syn::Result<Self> {
+    fn try_from(mut field: Field) -> Result<Self, venial::Error> {
         if has_lifetime(&field.ty) {
-            return Err(syn::Error::new_spanned(
+            return Err(venial::Error::new_at_tokens(
                 field.ident,
                 "Lifetimes on Response fields cannot be supported until GAT are stable",
             ));
@@ -237,7 +232,7 @@ impl TryFrom<Field> for ResponseField {
             [] => None,
             [_] => Some(api_attrs.pop().unwrap().parse_args::<ResponseMeta>()?),
             _ => {
-                return Err(syn::Error::new_spanned(
+                return Err(venial::Error::new_at_tokens(
                     &api_attrs[1],
                     "multiple field kind attribute found, there can only be one",
                 ));
@@ -249,7 +244,7 @@ impl TryFrom<Field> for ResponseField {
 }
 
 impl Parse for ResponseField {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         input.call(Field::parse_named)?.try_into()
     }
 }

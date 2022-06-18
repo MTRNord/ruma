@@ -2,14 +2,11 @@
 
 use std::fmt;
 
-use proc_macro2::Span;
+use proc_macro2::{Ident, Span};
 use quote::{format_ident, IdentFragment};
-use syn::{
-    braced,
-    parse::{self, Parse, ParseStream},
-    punctuated::Punctuated,
-    Attribute, Ident, LitStr, Path, Token,
-};
+use venial::{Attribute, Punctuated};
+
+use crate::util::LitStr;
 
 /// Custom keywords for the `event_enum!` macro
 mod kw {
@@ -125,7 +122,7 @@ impl EventKind {
         matches!(self, Self::MessageLike | Self::RoomRedaction | Self::State)
     }
 
-    pub fn to_event_ident(self, var: EventKindVariation) -> syn::Result<Ident> {
+    pub fn to_event_ident(self, var: EventKindVariation) -> Result<Ident, venial::Error> {
         use EventKindVariation as V;
 
         match (self, var) {
@@ -136,7 +133,7 @@ impl EventKind {
                 V::Original | V::OriginalSync | V::Redacted | V::RedactedSync,
             )
             | (Self::State, V::Stripped | V::Initial) => Ok(format_ident!("{var}{self}")),
-            _ => Err(syn::Error::new(
+            _ => Err(venial::Error::new_at_span(
                 Span::call_site(),
                 format!(
                     "({:?}, {:?}) is not a valid event kind / variation combination",
@@ -146,7 +143,7 @@ impl EventKind {
         }
     }
 
-    pub fn to_event_enum_ident(self, var: EventKindVariation) -> syn::Result<Ident> {
+    pub fn to_event_enum_ident(self, var: EventKindVariation) -> Result<Ident, venial::Error> {
         Ok(format_ident!("Any{}", self.to_event_ident(var)?))
     }
 
@@ -161,7 +158,7 @@ impl EventKind {
 }
 
 impl Parse for EventKind {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let ident: Ident = input.parse()?;
         Ok(match ident.to_string().as_str() {
             "GlobalAccountData" => EventKind::GlobalAccountData,
@@ -171,7 +168,7 @@ impl Parse for EventKind {
             "State" => EventKind::State,
             "ToDevice" => EventKind::ToDevice,
             id => {
-                return Err(syn::Error::new_spanned(
+                return Err(venial::Error::new_at_tokens(
                     ident,
                     format!(
                         "valid event kinds are GlobalAccountData, RoomAccountData, EphemeralRoom, \
@@ -238,7 +235,7 @@ pub struct EventEnumEntry {
 }
 
 impl Parse for EventEnumEntry {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let (ruma_enum_attrs, attrs) = input
             .call(Attribute::parse_outer)?
             .into_iter()
@@ -250,15 +247,15 @@ impl Parse for EventEnumEntry {
 
         let mut aliases = Vec::with_capacity(ruma_enum_attrs.len());
         for attr_list in ruma_enum_attrs {
-            for alias_attr in attr_list
-                .parse_args_with(Punctuated::<EventEnumAliasAttr, Token![,]>::parse_terminated)?
+            for alias_attr in
+                attr_list.parse_args_with(Punctuated::<EventEnumAliasAttr>::parse_terminated)?
             {
                 let alias = alias_attr.into_inner();
 
                 if alias.value().ends_with(".*") == has_suffix {
                     aliases.push(alias);
                 } else {
-                    return Err(syn::Error::new_spanned(
+                    return Err(venial::Error::new_at_tokens(
                         &attr_list,
                         "aliases should have the same `.*` suffix, or lack thereof, as the main event type",
                     ));
@@ -303,7 +300,7 @@ impl Parse for EventEnumInput {
 
             let content;
             braced!(content in input);
-            let events = content.parse_terminated::<_, Token![,]>(EventEnumEntry::parse)?;
+            let events = content.parse_terminated::<_>(EventEnumEntry::parse)?;
             let events = events.into_iter().collect();
             enums.push(EventEnumDecl { attrs, kind, events });
         }
@@ -320,7 +317,7 @@ impl EventEnumAliasAttr {
 }
 
 impl Parse for EventEnumAliasAttr {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let _: kw::alias = input.parse()?;
         let _: Token![=] = input.parse()?;
         let s: LitStr = input.parse()?;

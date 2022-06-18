@@ -1,11 +1,9 @@
 //! Details of the `metadata` section of the procedural macro.
 
+use proc_macro2::Ident;
 use quote::ToTokens;
-use syn::{
-    braced,
-    parse::{Parse, ParseStream},
-    Ident, LitBool, LitStr, Token,
-};
+
+use crate::util::{LitStr, LitBool};
 
 use super::{auth_scheme::AuthScheme, util, version::MatrixVersionLiteral};
 
@@ -60,11 +58,11 @@ pub struct Metadata {
     pub removed: Option<MatrixVersionLiteral>,
 }
 
-fn set_field<T: ToTokens>(field: &mut Option<T>, value: T) -> syn::Result<()> {
+fn set_field<T: ToTokens>(field: &mut Option<T>, value: T) -> Result<(), venial::Error> {
     match field {
         Some(existing_value) => {
-            let mut error = syn::Error::new_spanned(value, "duplicate field assignment");
-            error.combine(syn::Error::new_spanned(existing_value, "first one here"));
+            let mut error = venial::Error::new_at_tokens(value, "duplicate field assignment");
+            error.combine(venial::Error::new_at_tokens(existing_value, "first one here"));
             Err(error)
         }
         None => {
@@ -75,7 +73,7 @@ fn set_field<T: ToTokens>(field: &mut Option<T>, value: T) -> syn::Result<()> {
 }
 
 impl Parse for Metadata {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let metadata_kw: kw::metadata = input.parse()?;
         let _: Token![:] = input.parse()?;
 
@@ -114,13 +112,13 @@ impl Parse for Metadata {
         }
 
         let missing_field =
-            |name| syn::Error::new_spanned(metadata_kw, format!("missing field `{}`", name));
+            |name| venial::Error::new_at_tokens(metadata_kw, format!("missing field `{}`", name));
 
         let stable_or_r0 = stable_path.as_ref().or(r0_path.as_ref());
 
         if let Some(path) = stable_or_r0 {
             if added.is_none() {
-                return Err(syn::Error::new_spanned(
+                return Err(venial::Error::new_at_tokens(
                     path,
                     "stable path was defined, while `added` version was not defined",
                 ));
@@ -129,7 +127,7 @@ impl Parse for Metadata {
 
         if let Some(deprecated) = &deprecated {
             if added.is_none() {
-                return Err(syn::Error::new_spanned(
+                return Err(venial::Error::new_at_tokens(
                     deprecated,
                     "deprecated version is defined while added version is not defined",
                 ));
@@ -144,7 +142,7 @@ impl Parse for Metadata {
         // If matrix does so anyways, we can just alter this.
         if let Some(removed) = &removed {
             if deprecated.is_none() {
-                return Err(syn::Error::new_spanned(
+                return Err(venial::Error::new_at_tokens(
                     removed,
                     "removed version is defined while deprecated version is not defined",
                 ));
@@ -153,7 +151,7 @@ impl Parse for Metadata {
 
         if let Some(added) = &added {
             if stable_or_r0.is_none() {
-                return Err(syn::Error::new_spanned(
+                return Err(venial::Error::new_at_tokens(
                     added,
                     "added version is defined, but no stable or r0 path exists",
                 ));
@@ -164,24 +162,24 @@ impl Parse for Metadata {
             let added = added.as_ref().expect("we error if r0 or stable is defined without added");
 
             if added.major.get() == 1 && added.minor > 0 {
-                return Err(syn::Error::new_spanned(
+                return Err(venial::Error::new_at_tokens(
                     r0,
                     "r0 defined while added version is newer than v1.0",
                 ));
             }
 
             if stable_path.is_none() {
-                return Err(syn::Error::new_spanned(r0, "r0 defined without stable path"));
+                return Err(venial::Error::new_at_tokens(r0, "r0 defined without stable path"));
             }
 
             if !r0.value().contains("/r0/") {
-                return Err(syn::Error::new_spanned(r0, "r0 endpoint does not contain /r0/"));
+                return Err(venial::Error::new_at_tokens(r0, "r0 endpoint does not contain /r0/"));
             }
         }
 
         if let Some(stable) = &stable_path {
             if stable.value().contains("/r0/") {
-                return Err(syn::Error::new_spanned(
+                return Err(venial::Error::new_at_tokens(
                     stable,
                     "stable endpoint contains /r0/ (did you make a copy-paste error?)",
                 ));
@@ -189,7 +187,7 @@ impl Parse for Metadata {
         }
 
         if unstable_path.is_none() && r0_path.is_none() && stable_path.is_none() {
-            return Err(syn::Error::new_spanned(
+            return Err(venial::Error::new_at_tokens(
                 metadata_kw,
                 "need to define one of [r0_path, stable_path, unstable_path]",
             ));
@@ -226,7 +224,7 @@ enum Field {
 }
 
 impl Parse for Field {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let lookahead = input.lookahead1();
 
         if lookahead.peek(kw::description) {
@@ -283,7 +281,7 @@ enum FieldValue {
 }
 
 impl Parse for FieldValue {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let field: Field = input.parse()?;
         let _: Token![:] = input.parse()?;
 
@@ -313,13 +311,13 @@ impl EndpointPath {
 }
 
 impl Parse for EndpointPath {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let path: LitStr = input.parse()?;
 
         if util::is_valid_endpoint_path(&path.value()) {
             Ok(Self(path))
         } else {
-            Err(syn::Error::new_spanned(
+            Err(venial::Error::new_at_tokens(
                 &path,
                 "path may only contain printable ASCII characters with no spaces",
             ))

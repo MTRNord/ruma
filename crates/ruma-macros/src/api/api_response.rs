@@ -1,8 +1,8 @@
 //! Details of the `response` section of the procedural macro.
 
-use proc_macro2::TokenStream;
+use proc_macro2::{Ident, TokenStream};
 use quote::quote;
-use syn::{punctuated::Punctuated, spanned::Spanned, Attribute, Field, Ident, Token};
+use venial::{Attribute, Punctuated};
 
 use super::{api_metadata::Metadata, kw};
 
@@ -15,7 +15,7 @@ pub(crate) struct Response {
     pub attributes: Vec<Attribute>,
 
     /// The fields of the response.
-    pub fields: Punctuated<Field, Token![,]>,
+    pub fields: Punctuated<Field>,
 }
 
 impl Response {

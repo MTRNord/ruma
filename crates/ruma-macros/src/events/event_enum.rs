@@ -2,12 +2,12 @@
 
 use std::{fmt, iter::zip};
 
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote, IdentFragment, ToTokens};
-use syn::{Attribute, Data, DataEnum, DeriveInput, Ident, LitStr, Path};
+use venial::{Declaration, Enum, StructFields, TyExpr, Attribute};
 
 use super::event_parse::{EventEnumDecl, EventEnumEntry, EventKind};
-use crate::util::m_prefix_name_to_type_name;
+use crate::util::{m_prefix_name_to_type_name, LitStr};
 
 /// Custom keywords for the `event_enum!` macro
 mod kw {
@@ -40,7 +40,7 @@ const EVENT_FIELDS: &[(&str, EventKindFn)] = &[
 ];
 
 /// Create a content enum from `EventEnumInput`.
-pub fn expand_event_enums(input: &EventEnumDecl) -> syn::Result<TokenStream> {
+pub fn expand_event_enums(input: &EventEnumDecl) -> Result<TokenStream, venial::Error> {
     use EventEnumVariation as V;
 
     let ruma_common = crate::import_ruma_common();
@@ -49,9 +49,13 @@ pub fn expand_event_enums(input: &EventEnumDecl) -> syn::Result<TokenStream> {
 
     let kind = input.kind;
     let attrs = &input.attrs;
-    let docs: Vec<_> = input.events.iter().map(EventEnumEntry::docs).collect::<syn::Result<_>>()?;
-    let variants: Vec<_> =
-        input.events.iter().map(EventEnumEntry::to_variant).collect::<syn::Result<_>>()?;
+    let docs: Vec<_> =
+        input.events.iter().map(EventEnumEntry::docs).collect::<Result<_, venial::Error>>()?;
+    let variants: Vec<_> = input
+        .events
+        .iter()
+        .map(EventEnumEntry::to_variant)
+        .collect::<Result<_, venial::Error>>()?;
 
     let events = &input.events;
     let docs = &docs;
@@ -61,47 +65,47 @@ pub fn expand_event_enums(input: &EventEnumDecl) -> syn::Result<TokenStream> {
     res.extend(expand_content_enum(kind, events, docs, attrs, variants, ruma_common));
     res.extend(
         expand_event_enum(kind, V::None, events, docs, attrs, variants, ruma_common)
-            .unwrap_or_else(syn::Error::into_compile_error),
+            .unwrap_or_else(venial::Error::to_compile_error),
     );
 
     if matches!(kind, EventKind::MessageLike | EventKind::State) {
         res.extend(
             expand_event_enum(kind, V::Sync, events, docs, attrs, variants, ruma_common)
-                .unwrap_or_else(syn::Error::into_compile_error),
+                .unwrap_or_else(venial::Error::to_compile_error),
         );
         res.extend(
             expand_redact(kind, V::None, variants, ruma_common)
-                .unwrap_or_else(syn::Error::into_compile_error),
+                .unwrap_or_else(venial::Error::to_compile_error),
         );
         res.extend(
             expand_redact(kind, V::Sync, variants, ruma_common)
-                .unwrap_or_else(syn::Error::into_compile_error),
+                .unwrap_or_else(venial::Error::to_compile_error),
         );
         res.extend(
             expand_from_full_event(kind, V::None, variants)
-                .unwrap_or_else(syn::Error::into_compile_error),
+                .unwrap_or_else(venial::Error::to_compile_error),
         );
         res.extend(
             expand_into_full_event(kind, V::Sync, variants, ruma_common)
-                .unwrap_or_else(syn::Error::into_compile_error),
+                .unwrap_or_else(venial::Error::to_compile_error),
         );
     }
 
     if matches!(kind, EventKind::Ephemeral) {
         res.extend(
             expand_event_enum(kind, V::Sync, events, docs, attrs, variants, ruma_common)
-                .unwrap_or_else(syn::Error::into_compile_error),
+                .unwrap_or_else(venial::Error::to_compile_error),
         );
     }
 
     if matches!(kind, EventKind::State) {
         res.extend(
             expand_event_enum(kind, V::Stripped, events, docs, attrs, variants, ruma_common)
-                .unwrap_or_else(syn::Error::into_compile_error),
+                .unwrap_or_else(venial::Error::to_compile_error),
         );
         res.extend(
             expand_event_enum(kind, V::Initial, events, docs, attrs, variants, ruma_common)
-                .unwrap_or_else(syn::Error::into_compile_error),
+                .unwrap_or_else(venial::Error::to_compile_error),
         );
     }
 
@@ -116,7 +120,7 @@ fn expand_event_enum(
     attrs: &[Attribute],
     variants: &[EventEnumVariant],
     ruma_common: &TokenStream,
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     let event_struct = kind.to_event_ident(var.into())?;
     let ident = kind.to_event_enum_ident(var.into())?;
 
@@ -128,7 +132,7 @@ fn expand_event_enum(
                 .stable_name()
                 .map(|stable_name| to_event_path(stable_name, &event.ev_path, kind, var))
         })
-        .collect::<syn::Result<_>>()?;
+        .collect::<Result<_, venial::Error>>()?;
 
     let custom_ty = format_ident!("Custom{}Content", kind);
 
@@ -164,7 +168,7 @@ fn expand_deserialize_impl(
     var: EventEnumVariation,
     events: &[EventEnumEntry],
     ruma_common: &TokenStream,
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     let serde = quote! { #ruma_common::exports::serde };
     let serde_json = quote! { #ruma_common::exports::serde_json };
 
@@ -190,7 +194,7 @@ fn expand_deserialize_impl(
                 },
             })
         })
-        .collect::<syn::Result<_>>()?;
+        .collect::<Result<_, venial::Error>>()?;
 
     Ok(quote! {
         #[allow(unused_qualifications)]
@@ -245,7 +249,7 @@ fn expand_from_full_event(
     kind: EventKind,
     var: EventEnumVariation,
     variants: &[EventEnumVariant],
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     let ident = kind.to_event_enum_ident(var.into())?;
     let sync = kind.to_event_enum_ident(var.to_sync().into())?;
 
@@ -276,7 +280,7 @@ fn expand_into_full_event(
     var: EventEnumVariation,
     variants: &[EventEnumVariant],
     ruma_common: &TokenStream,
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     let ident = kind.to_event_enum_ident(var.into())?;
     let full = kind.to_event_enum_ident(var.to_full().into())?;
 
@@ -311,7 +315,7 @@ fn expand_content_enum(
     attrs: &[Attribute],
     variants: &[EventEnumVariant],
     ruma_common: &TokenStream,
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     let serde = quote! { #ruma_common::exports::serde };
     let serde_json = quote! { #ruma_common::exports::serde_json };
 
@@ -325,7 +329,7 @@ fn expand_content_enum(
             let stable_name = event.stable_name()?;
             Ok(to_event_content_path(kind, stable_name, &event.ev_path, None))
         })
-        .collect::<syn::Result<_>>()?;
+        .collect::<Result<_, venial::Error>>()?;
     let event_type_match_arms: TokenStream = zip(zip(events, variants), &content)
         .map(|((event, variant), ev_content)| {
             let variant_attrs = {
@@ -355,7 +359,7 @@ fn expand_content_enum(
                 },
             })
         })
-        .collect::<syn::Result<_>>()?;
+        .collect::<Result<_, venial::Error>>()?;
 
     let variant_decls = variants.iter().map(|v| v.decl()).collect::<Vec<_>>();
     let variant_arms = variants.iter().map(|v| v.match_arm(quote! { Self })).collect::<Vec<_>>();
@@ -418,7 +422,7 @@ fn expand_redact(
     var: EventEnumVariation,
     variants: &[EventEnumVariant],
     ruma_common: &TokenStream,
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     let ident = kind.to_event_enum_ident(var.into())?;
 
     let self_variants = variants.iter().map(|v| v.match_arm(quote! { Self }));
@@ -454,7 +458,7 @@ fn expand_accessor_methods(
     var: EventEnumVariation,
     variants: &[EventEnumVariant],
     ruma_common: &TokenStream,
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     let ident = kind.to_event_enum_ident(var.into())?;
     let event_type_enum = format_ident!("{}Type", kind);
     let self_variants: Vec<_> = variants.iter().map(|v| v.match_arm(quote! { Self })).collect();
@@ -683,19 +687,19 @@ impl EventEnumEntry {
         self.ev_type.value().ends_with(".*")
     }
 
-    pub(crate) fn to_variant(&self) -> syn::Result<EventEnumVariant> {
+    pub(crate) fn to_variant(&self) -> Result<EventEnumVariant, venial::Error> {
         let attrs = self.attrs.clone();
         let ident = m_prefix_name_to_type_name(self.stable_name()?)?;
 
         Ok(EventEnumVariant { attrs, ident })
     }
 
-    pub(crate) fn stable_name(&self) -> syn::Result<&LitStr> {
+    pub(crate) fn stable_name(&self) -> Result<&LitStr, venial::Error> {
         if self.ev_type.value().starts_with("m.") {
             Ok(&self.ev_type)
         } else {
             self.aliases.iter().find(|alias| alias.value().starts_with("m.")).ok_or_else(|| {
-                syn::Error::new(
+                venial::Error::new_at_span(
                     Span::call_site(),
                     format!(
                         "A matrix event must declare a well-known type that starts with `m.` \
@@ -707,7 +711,7 @@ impl EventEnumEntry {
         }
     }
 
-    pub(crate) fn docs(&self) -> syn::Result<TokenStream> {
+    pub(crate) fn docs(&self) -> Result<TokenStream, venial::Error> {
         let stable_name = self.stable_name()?;
 
         let mut doc = quote! {
@@ -756,17 +760,17 @@ impl EventEnumEntry {
     }
 }
 
-pub(crate) fn expand_from_impls_derived(input: DeriveInput) -> TokenStream {
-    let variants = match &input.data {
-        Data::Enum(DataEnum { variants, .. }) => variants,
+pub(crate) fn expand_from_impls_derived(input: Declaration) -> TokenStream {
+    let variants = match &input {
+        Declaration::Enum(Enum { variants, .. }) => variants,
         _ => panic!("this derive macro only works with enums"),
     };
 
-    let from_impls = variants.iter().map(|variant| match &variant.fields {
-        syn::Fields::Unnamed(fields) if fields.unnamed.len() == 1 => {
-            let inner_struct = &fields.unnamed.first().unwrap().ty;
-            let var_ident = &variant.ident;
-            let id = &input.ident;
+    let from_impls = variants.iter().map(|(variant, _)| match &variant.contents {
+        StructFields::Tuple(fields) if fields.fields.len() == 1 => {
+            let inner_struct: &TyExpr = &fields.fields.first().unwrap().ty;
+            let var_ident: &Ident = &variant.ident;
+            let id = &input.name();
             quote! {
                 #[automatically_derived]
                 impl ::std::convert::From<#inner_struct> for #id {

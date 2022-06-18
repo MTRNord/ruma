@@ -1,13 +1,15 @@
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
-use syn::{parse_quote, Ident, LitStr};
+use venial::parse_declaration;
+
+use crate::util::LitStr;
 
 use super::event_parse::{EventEnumEntry, EventEnumInput, EventKind};
 
 pub fn expand_event_type_enum(
     input: EventEnumInput,
     ruma_common: TokenStream,
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     let mut room: Vec<&Vec<EventEnumEntry>> = vec![];
     let mut state: Vec<&Vec<EventEnumEntry>> = vec![];
     let mut message: Vec<&Vec<EventEnumEntry>> = vec![];
@@ -39,7 +41,7 @@ pub fn expand_event_type_enum(
         attrs: vec![],
         aliases: vec![],
         ev_type: LitStr::new("m.presence", Span::call_site()),
-        ev_path: parse_quote! { #ruma_common::events::presence },
+        ev_path: parse_declaration(quote! { #ruma_common::events::presence }),
     }];
     let mut all = input.enums.iter().map(|e| &e.events).collect::<Vec<_>>();
     all.push(&presence);
@@ -48,35 +50,35 @@ pub fn expand_event_type_enum(
 
     res.extend(
         generate_enum("EventType", &all, &ruma_common)
-            .unwrap_or_else(syn::Error::into_compile_error),
+            .unwrap_or_else(venial::Error::to_compile_error),
     );
     res.extend(
         generate_enum("RoomEventType", &room, &ruma_common)
-            .unwrap_or_else(syn::Error::into_compile_error),
+            .unwrap_or_else(venial::Error::to_compile_error),
     );
     res.extend(
         generate_enum("StateEventType", &state, &ruma_common)
-            .unwrap_or_else(syn::Error::into_compile_error),
+            .unwrap_or_else(venial::Error::to_compile_error),
     );
     res.extend(
         generate_enum("MessageLikeEventType", &message, &ruma_common)
-            .unwrap_or_else(syn::Error::into_compile_error),
+            .unwrap_or_else(venial::Error::to_compile_error),
     );
     res.extend(
         generate_enum("EphemeralRoomEventType", &ephemeral, &ruma_common)
-            .unwrap_or_else(syn::Error::into_compile_error),
+            .unwrap_or_else(venial::Error::to_compile_error),
     );
     res.extend(
         generate_enum("RoomAccountDataEventType", &room_account, &ruma_common)
-            .unwrap_or_else(syn::Error::into_compile_error),
+            .unwrap_or_else(venial::Error::to_compile_error),
     );
     res.extend(
         generate_enum("GlobalAccountDataEventType", &global_account, &ruma_common)
-            .unwrap_or_else(syn::Error::into_compile_error),
+            .unwrap_or_else(venial::Error::to_compile_error),
     );
     res.extend(
         generate_enum("ToDeviceEventType", &to_device, &ruma_common)
-            .unwrap_or_else(syn::Error::into_compile_error),
+            .unwrap_or_else(venial::Error::to_compile_error),
     );
 
     Ok(res)
@@ -86,7 +88,7 @@ fn generate_enum(
     ident: &str,
     input: &[&Vec<EventEnumEntry>],
     ruma_common: &TokenStream,
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     let serde = quote! { #ruma_common::exports::serde };
     let enum_doc = format!("The type of `{}` this is.", ident.strip_suffix("Type").unwrap());
 
@@ -122,7 +124,7 @@ fn generate_enum(
                 #start #data
             })
         })
-        .collect::<syn::Result<_>>()?;
+        .collect::<Result<_, venial::Error>>()?;
 
     let to_cow_str_match_arms: Vec<_> = deduped
         .iter()
@@ -138,7 +140,7 @@ fn generate_enum(
                 quote! { #start => ::std::borrow::Cow::Borrowed(#ev_type) }
             })
         })
-        .collect::<syn::Result<_>>()?;
+        .collect::<Result<_, venial::Error>>()?;
 
     let mut from_str_match_arms = TokenStream::new();
     for event in &deduped {
@@ -181,7 +183,7 @@ fn generate_enum(
                     quote! { #ident_var => #room_var }
                 })
             })
-            .collect::<syn::Result<_>>()?;
+            .collect::<Result<_, venial::Error>>()?;
 
         Some(quote! {
             #[allow(deprecated)]

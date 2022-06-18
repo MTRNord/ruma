@@ -4,7 +4,7 @@ use std::collections::BTreeSet;
 
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{quote, ToTokens};
-use syn::{parse_quote, visit::Visit, Attribute, Lifetime, NestedMeta, Type};
+use venial::Attribute;
 
 pub fn map_option_literal<T: ToTokens>(ver: &Option<T>) -> TokenStream {
     match ver {

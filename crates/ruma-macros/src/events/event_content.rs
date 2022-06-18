@@ -2,14 +2,11 @@
 
 use std::borrow::Cow;
 
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::{Ident, Span, TokenStream, TokenTree};
 use quote::{format_ident, quote};
-use syn::{
-    parse::{Parse, ParseStream},
-    DeriveInput, Field, Ident, LitStr, Token, Type,
-};
+use venial::{Declaration, Punctuated, Struct};
 
-use crate::util::m_prefix_name_to_type_name;
+use crate::util::{m_prefix_name_to_type_name, LitStr};
 
 use super::event_parse::{EventKind, EventKindVariation};
 
@@ -77,7 +74,7 @@ impl EventStructMeta {
 }
 
 impl Parse for EventStructMeta {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let lookahead = input.lookahead1();
         if lookahead.peek(Token![type]) {
             let _: Token![type] = input.parse()?;
@@ -118,7 +115,7 @@ enum EventFieldMeta {
 }
 
 impl Parse for EventFieldMeta {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let lookahead = input.lookahead1();
         if lookahead.peek(kw::skip_redaction) {
             let _: kw::skip_redaction = input.parse()?;
@@ -157,30 +154,36 @@ impl MetaAttrs {
 }
 
 impl Parse for MetaAttrs {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
-        let attrs =
-            syn::punctuated::Punctuated::<EventStructMeta, Token![,]>::parse_terminated(input)?;
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
+        let attrs = Punctuated::<EventStructMeta>::parse_terminated(input)?;
         Ok(Self(attrs.into_iter().collect()))
     }
 }
 
 /// Create an `EventContent` implementation for a struct.
 pub fn expand_event_content(
-    input: &DeriveInput,
+    input: &Declaration,
     ruma_common: &TokenStream,
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     let content_attr = input
-        .attrs
+        .attributes()
         .iter()
-        .filter(|attr| attr.path.is_ident("ruma_event"))
+        .filter(|attr| {
+            if let TokenTree::Ident(ident) = attr.path {
+                if ident == "ruma_event" {
+                    return true;
+                }
+            }
+            return false;
+        })
         .map(|attr| attr.parse_args::<MetaAttrs>())
-        .collect::<syn::Result<Vec<_>>>()?;
+        .collect::<Result<Vec<_>, venial::Error>>()?;
 
     let mut event_types: Vec<_> =
         content_attr.iter().filter_map(|attrs| attrs.get_event_type()).collect();
     let event_type = match event_types.as_slice() {
         [] => {
-            return Err(syn::Error::new(
+            return Err(venial::Error::new_at_span(
                 Span::call_site(),
                 "no event type attribute found, \
                  add `#[ruma_event(type = \"any.room.event\", kind = Kind)]` \
@@ -189,7 +192,7 @@ pub fn expand_event_content(
         }
         [_] => event_types.pop().unwrap(),
         _ => {
-            return Err(syn::Error::new(
+            return Err(venial::Error::new_at_span(
                 Span::call_site(),
                 "multiple event type attribute found, there can only be one",
             ));
@@ -202,7 +205,7 @@ pub fn expand_event_content(
         [] => None,
         [_] => Some(event_kinds.pop().unwrap()),
         _ => {
-            return Err(syn::Error::new(
+            return Err(venial::Error::new_at_span(
                 Span::call_site(),
                 "multiple event kind attribute found, there can only be one",
             ));
@@ -213,32 +216,32 @@ pub fn expand_event_content(
         content_attr.iter().filter_map(|attrs| attrs.get_state_key_type()).collect();
     let state_key_type = match (event_kind, state_key_types.as_slice()) {
         (Some(EventKind::State), []) => {
-            return Err(syn::Error::new(
+            return Err(venial::Error::new_at_span(
                 Span::call_site(),
                 "no state_key_type attribute found, please specify one",
             ));
         }
         (Some(EventKind::State), [ty]) => Some(quote! { #ty }),
         (Some(EventKind::State), _) => {
-            return Err(syn::Error::new(
+            return Err(venial::Error::new_at_span(
                 Span::call_site(),
                 "multiple state_key_type attribute found, there can only be one",
             ));
         }
         (_, []) => None,
         (_, [ty, ..]) => {
-            return Err(syn::Error::new_spanned(
+            return Err(venial::Error::new_at_tokens(
                 ty,
                 "state_key_type attribute is not valid for non-state event kinds",
             ));
         }
     };
 
-    let ident = &input.ident;
-    let fields = match &input.data {
-        syn::Data::Struct(syn::DataStruct { fields, .. }) => fields.iter(),
+    let ident = &input.name();
+    let fields = match &input {
+        Declaration::Struct(Struct { fields, .. }) => fields.iter(),
         _ => {
-            return Err(syn::Error::new(
+            return Err(venial::Error::new_at_span(
                 Span::call_site(),
                 "event content types need to be structs",
             ));
@@ -249,14 +252,14 @@ pub fn expand_event_content(
     let prefix = event_type_s.strip_suffix(".*");
 
     if prefix.unwrap_or(&event_type_s).contains('*') {
-        return Err(syn::Error::new_spanned(
+        return Err(venial::Error::new_at_tokens(
             event_type,
             "event type may only contain `*` as part of a `.*` suffix",
         ));
     }
 
     if prefix.is_some() && !event_kind.map_or(false, |k| k.is_account_data()) {
-        return Err(syn::Error::new_spanned(
+        return Err(venial::Error::new_at_tokens(
             event_type,
             "only account data events may contain a `.*` suffix",
         ));
@@ -265,7 +268,7 @@ pub fn expand_event_content(
     let aliases: Vec<_> = content_attr.iter().flat_map(|attrs| attrs.get_aliases()).collect();
     for alias in &aliases {
         if alias.value().ends_with(".*") != prefix.is_some() {
-            return Err(syn::Error::new_spanned(
+            return Err(venial::Error::new_at_tokens(
                 event_type,
                 "aliases should have the same `.*` suffix, or lack thereof, as the main event type",
             ));
@@ -283,7 +286,7 @@ pub fn expand_event_content(
             &aliases,
             ruma_common,
         )
-        .unwrap_or_else(syn::Error::into_compile_error)
+        .unwrap_or_else(venial::Error::to_compile_error)
     });
 
     let event_content_impl = generate_event_content_impl(
@@ -295,12 +298,12 @@ pub fn expand_event_content(
         &aliases,
         ruma_common,
     )
-    .unwrap_or_else(syn::Error::into_compile_error);
+    .unwrap_or_else(venial::Error::to_compile_error);
     let static_event_content_impl = event_kind
         .map(|k| generate_static_event_content_impl(ident, k, false, event_type, ruma_common));
     let type_aliases = event_kind.map(|k| {
         generate_event_type_aliases(k, ident, &event_type.value(), ruma_common)
-            .unwrap_or_else(syn::Error::into_compile_error)
+            .unwrap_or_else(venial::Error::to_compile_error)
     });
 
     Ok(quote! {
@@ -319,7 +322,7 @@ fn generate_redacted_event_content<'a>(
     state_key_type: Option<&TokenStream>,
     aliases: &[&LitStr],
     ruma_common: &TokenStream,
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     assert!(
         !event_type.value().contains('*'),
         "Event type shouldn't contain a `*`, this should have been checked previously"
@@ -337,7 +340,7 @@ fn generate_redacted_event_content<'a>(
             let attrs = f
                 .attrs
                 .iter()
-                .map(|a| -> syn::Result<_> {
+                .map(|a| -> Result<_,venial::Error> {
                     if a.path.is_ident("ruma_event") {
                         if let EventFieldMeta::SkipRedaction = a.parse_args()? {
                             keep_field = true;
@@ -350,7 +353,7 @@ fn generate_redacted_event_content<'a>(
                     }
                 })
                 .filter_map(Result::transpose)
-                .collect::<syn::Result<_>>()?;
+                .collect::<Result<_, venial::Error>>()?;
 
             if keep_field {
                 Ok(Some(Field { attrs, ..f.clone() }))
@@ -359,7 +362,7 @@ fn generate_redacted_event_content<'a>(
             }
         })
         .filter_map(Result::transpose)
-        .collect::<syn::Result<_>>()?;
+        .collect::<Result<_, venial::Error>>()?;
 
     let redaction_struct_fields = kept_redacted_fields.iter().flat_map(|f| &f.ident);
 
@@ -405,7 +408,7 @@ fn generate_redacted_event_content<'a>(
         aliases,
         ruma_common,
     )
-    .unwrap_or_else(syn::Error::into_compile_error);
+    .unwrap_or_else(venial::Error::to_compile_error);
 
     let static_event_content_impl = event_kind.map(|k| {
         generate_static_event_content_impl(&redacted_ident, k, true, event_type, ruma_common)
@@ -469,7 +472,7 @@ fn generate_event_type_aliases(
     ident: &Ident,
     event_type: &str,
     ruma_common: &TokenStream,
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     // The redaction module has its own event types.
     if ident == "RoomRedactionEventContent" {
         return Ok(quote! {});
@@ -477,7 +480,7 @@ fn generate_event_type_aliases(
 
     let ident_s = ident.to_string();
     let ev_type_s = ident_s.strip_suffix("Content").ok_or_else(|| {
-        syn::Error::new_spanned(ident, "Expected content struct name ending in `Content`")
+        venial::Error::new_at_tokens(ident, "Expected content struct name ending in `Content`")
     })?;
 
     let type_aliases = [
@@ -533,7 +536,7 @@ fn generate_event_content_impl<'a>(
     state_key_type: Option<&TokenStream>,
     aliases: &[&'a LitStr],
     ruma_common: &TokenStream,
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     let serde = quote! { #ruma_common::exports::serde };
     let serde_json = quote! { #ruma_common::exports::serde_json };
 
@@ -555,7 +558,7 @@ fn generate_event_content_impl<'a>(
                 })
                 .transpose()?
                 .ok_or_else(|| {
-                    syn::Error::new_spanned(
+                    venial::Error::new_at_tokens(
                         event_type,
                         "event type with a `.*` suffix requires there to be a \
                                  `#[ruma_event(type_fragment)]` field",

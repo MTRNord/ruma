@@ -1,9 +1,6 @@
 //! Details of the `#[ruma_api(...)]` attributes.
 
-use syn::{
-    parse::{Parse, ParseStream},
-    Ident, LitStr, Token, Type,
-};
+use crate::util::LitStr;
 
 mod kw {
     syn::custom_keyword!(body);
@@ -31,7 +28,7 @@ pub enum RequestMeta {
 }
 
 impl Parse for RequestMeta {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let lookahead = input.lookahead1();
         if lookahead.peek(kw::body) {
             let _: kw::body = input.parse()?;
@@ -68,7 +65,7 @@ pub enum DeriveRequestMeta {
 }
 
 impl Parse for DeriveRequestMeta {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let lookahead = input.lookahead1();
         if lookahead.peek(kw::authentication) {
             let _: kw::authentication = input.parse()?;
@@ -107,7 +104,7 @@ pub enum ResponseMeta {
 }
 
 impl Parse for ResponseMeta {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let lookahead = input.lookahead1();
         if lookahead.peek(kw::body) {
             let _: kw::body = input.parse()?;
@@ -132,7 +129,7 @@ pub enum DeriveResponseMeta {
 }
 
 impl Parse for DeriveResponseMeta {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let lookahead = input.lookahead1();
         if lookahead.peek(kw::manual_body_serde) {
             let _: kw::manual_body_serde = input.parse()?;

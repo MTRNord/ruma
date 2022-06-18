@@ -1,12 +1,10 @@
 //! Methods and types for generating identifiers.
 
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::{Punct, Span, TokenStream, TokenTree};
 use quote::{format_ident, quote};
-use syn::{
-    parse::{Parse, ParseStream},
-    punctuated::Punctuated,
-    Fields, ImplGenerics, Index, ItemStruct, LitStr, Path, Token,
-};
+use venial::{Declaration, Punctuated, Struct};
+
+use crate::util::LitStr;
 
 pub struct IdentifierInput {
     pub dollar_crate: Path,
@@ -14,7 +12,7 @@ pub struct IdentifierInput {
 }
 
 impl Parse for IdentifierInput {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let dollar_crate = input.parse()?;
         let _: Token![,] = input.parse()?;
         let id = input.parse()?;
@@ -23,209 +21,232 @@ impl Parse for IdentifierInput {
     }
 }
 
-pub fn expand_id_zst(input: ItemStruct) -> syn::Result<TokenStream> {
-    let id = &input.ident;
-    let owned = format_ident!("Owned{id}");
+pub fn expand_id_zst(input: Declaration) -> Result<TokenStream, venial::Error> {
+    if let Declaration::Struct(input) = input {
+        let id = &input.name;
+        let owned = format_ident!("Owned{id}");
 
-    let owned_decl = expand_owned_id(&input);
+        let owned_decl = expand_owned_id(&input);
 
-    let meta = input.attrs.iter().filter(|attr| attr.path.is_ident("ruma_id")).try_fold(
-        IdZstMeta::default(),
-        |meta, attr| {
-            let list: Punctuated<IdZstMeta, Token![,]> =
-                attr.parse_args_with(Punctuated::parse_terminated)?;
+        let meta = input
+            .attributes
+            .iter()
+            .filter(|attr| {
+                if let TokenTree::Ident(ident) = attr.path {
+                    if ident == "ruma_id" {
+                        return true;
+                    }
+                }
+                return false;
+            })
+            .try_fold(IdZstMeta::default(), |meta, attr| {
+                let list: Punctuated<IdZstMeta, Punct> =
+                    attr.parse_args_with(Punctuated::parse_terminated)?;
 
-            list.into_iter().try_fold(meta, IdZstMeta::merge)
-        },
-    )?;
+                list.into_iter().try_fold(meta, IdZstMeta::merge)
+            })?;
 
-    let extra_impls = if let Some(validate) = meta.validate {
-        expand_checked_impls(&input, validate)
-    } else {
-        assert!(
-            input.generics.params.is_empty(),
-            "generic unchecked IDs are not currently supported"
+        let extra_impls = if let Some(validate) = meta.validate {
+            expand_checked_impls(&input, validate)
+        } else {
+            assert!(
+                input.generics.params.is_empty(),
+                "generic unchecked IDs are not currently supported"
+            );
+            expand_unchecked_impls(&input)
+        };
+
+        let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
+        // So we don't have to insert #where_clause everywhere when it is always None in practice
+        assert_eq!(
+            where_clause, None,
+            "where clauses on identifier types are not currently supported"
         );
-        expand_unchecked_impls(&input)
-    };
 
-    let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
-    // So we don't have to insert #where_clause everywhere when it is always None in practice
-    assert_eq!(where_clause, None, "where clauses on identifier types are not currently supported");
+        let as_str_docs = format!("Creates a string slice from this `{}`.", id);
+        let as_bytes_docs = format!("Creates a byte slice from this `{}`.", id);
 
-    let as_str_docs = format!("Creates a string slice from this `{}`.", id);
-    let as_bytes_docs = format!("Creates a byte slice from this `{}`.", id);
+        let as_str_impl = match &input.fields {
+            Fields::Named(_) | Fields::Unit => {
+                syn::Error::new(Span::call_site(), "Only tuple structs are supported currently.")
+                    .into_compile_error()
+            }
+            Fields::Unnamed(u) => {
+                let last_idx = Index::from(u.unnamed.len() - 1);
+                quote! { &self.#last_idx }
+            }
+        };
 
-    let as_str_impl = match &input.fields {
-        Fields::Named(_) | Fields::Unit => {
-            syn::Error::new(Span::call_site(), "Only tuple structs are supported currently.")
-                .into_compile_error()
-        }
-        Fields::Unnamed(u) => {
-            let last_idx = Index::from(u.unnamed.len() - 1);
-            quote! { &self.#last_idx }
-        }
-    };
+        let id_ty = quote! { #id #ty_generics };
+        let owned_ty = quote! { #owned #ty_generics };
 
-    let id_ty = quote! { #id #ty_generics };
-    let owned_ty = quote! { #owned #ty_generics };
+        let partial_eq_string = expand_partial_eq_string(id_ty.clone(), &impl_generics);
+        // FIXME: Remove?
+        let box_partial_eq_string =
+            expand_partial_eq_string(quote! { Box<#id_ty> }, &impl_generics);
 
-    let partial_eq_string = expand_partial_eq_string(id_ty.clone(), &impl_generics);
-    // FIXME: Remove?
-    let box_partial_eq_string = expand_partial_eq_string(quote! { Box<#id_ty> }, &impl_generics);
+        Ok(quote! {
+            #owned_decl
 
-    Ok(quote! {
-        #owned_decl
+            impl #impl_generics #id_ty {
+                pub(super) const fn from_borrowed(s: &str) -> &Self {
+                    unsafe { std::mem::transmute(s) }
+                }
 
-        impl #impl_generics #id_ty {
-            pub(super) const fn from_borrowed(s: &str) -> &Self {
-                unsafe { std::mem::transmute(s) }
+                pub(super) fn from_box(s: Box<str>) -> Box<Self> {
+                    unsafe { Box::from_raw(Box::into_raw(s) as _) }
+                }
+
+                pub(super) fn from_rc(s: std::rc::Rc<str>) -> std::rc::Rc<Self> {
+                    unsafe { std::rc::Rc::from_raw(std::rc::Rc::into_raw(s) as _) }
+                }
+
+                pub(super) fn from_arc(s: std::sync::Arc<str>) -> std::sync::Arc<Self> {
+                    unsafe { std::sync::Arc::from_raw(std::sync::Arc::into_raw(s) as _) }
+                }
+
+                pub(super) fn into_owned(self: Box<Self>) -> Box<str> {
+                    unsafe { Box::from_raw(Box::into_raw(self) as _) }
+                }
+
+                #[doc = #as_str_docs]
+                #[inline]
+                pub fn as_str(&self) -> &str {
+                    #as_str_impl
+                }
+
+                #[doc = #as_bytes_docs]
+                #[inline]
+                pub fn as_bytes(&self) -> &[u8] {
+                    self.as_str().as_bytes()
+                }
             }
 
-            pub(super) fn from_box(s: Box<str>) -> Box<Self> {
-                unsafe { Box::from_raw(Box::into_raw(s) as _) }
+            impl #impl_generics Clone for Box<#id_ty> {
+                fn clone(&self) -> Self {
+                    (**self).into()
+                }
             }
 
-            pub(super) fn from_rc(s: std::rc::Rc<str>) -> std::rc::Rc<Self> {
-                unsafe { std::rc::Rc::from_raw(std::rc::Rc::into_raw(s) as _) }
+            impl #impl_generics ToOwned for #id_ty {
+                type Owned = #owned_ty;
+
+                fn to_owned(&self) -> Self::Owned {
+                    #owned::from_ref(self)
+                }
             }
 
-            pub(super) fn from_arc(s: std::sync::Arc<str>) -> std::sync::Arc<Self> {
-                unsafe { std::sync::Arc::from_raw(std::sync::Arc::into_raw(s) as _) }
+            impl #impl_generics AsRef<str> for #id_ty {
+                fn as_ref(&self) -> &str {
+                    self.as_str()
+                }
             }
 
-            pub(super) fn into_owned(self: Box<Self>) -> Box<str> {
-                unsafe { Box::from_raw(Box::into_raw(self) as _) }
+            impl #impl_generics AsRef<str> for Box<#id_ty> {
+                fn as_ref(&self) -> &str {
+                    self.as_str()
+                }
             }
 
-            #[doc = #as_str_docs]
-            #[inline]
-            pub fn as_str(&self) -> &str {
-                #as_str_impl
+            impl #impl_generics From<&#id_ty> for String {
+                fn from(id: &#id_ty) -> Self {
+                    id.as_str().to_owned()
+                }
             }
 
-            #[doc = #as_bytes_docs]
-            #[inline]
-            pub fn as_bytes(&self) -> &[u8] {
-                self.as_str().as_bytes()
+            impl #impl_generics From<Box<#id_ty>> for String {
+                fn from(id: Box<#id_ty>) -> Self {
+                    id.into_owned().into()
+                }
             }
-        }
 
-        impl #impl_generics Clone for Box<#id_ty> {
-            fn clone(&self) -> Self {
-                (**self).into()
+            impl #impl_generics From<&#id_ty> for Box<#id_ty> {
+                fn from(id: &#id_ty) -> Self {
+                    <#id_ty>::from_box(id.as_str().into())
+                }
             }
-        }
 
-        impl #impl_generics ToOwned for #id_ty {
-            type Owned = #owned_ty;
-
-            fn to_owned(&self) -> Self::Owned {
-                #owned::from_ref(self)
+            impl #impl_generics From<&#id_ty> for std::rc::Rc<#id_ty> {
+                fn from(s: &#id_ty) -> std::rc::Rc<#id_ty> {
+                    let rc = std::rc::Rc::<str>::from(s.as_str());
+                    <#id_ty>::from_rc(rc)
+                }
             }
-        }
 
-        impl #impl_generics AsRef<str> for #id_ty {
-            fn as_ref(&self) -> &str {
-                self.as_str()
+            impl #impl_generics From<&#id_ty> for std::sync::Arc<#id_ty> {
+                fn from(s: &#id_ty) -> std::sync::Arc<#id_ty> {
+                    let arc = std::sync::Arc::<str>::from(s.as_str());
+                    <#id_ty>::from_arc(arc)
+                }
             }
-        }
 
-        impl #impl_generics AsRef<str> for Box<#id_ty> {
-            fn as_ref(&self) -> &str {
-                self.as_str()
+            impl #impl_generics PartialEq<#id_ty> for Box<#id_ty> {
+                fn eq(&self, other: &#id_ty) -> bool {
+                    self.as_str() == other.as_str()
+                }
             }
-        }
 
-        impl #impl_generics From<&#id_ty> for String {
-            fn from(id: &#id_ty) -> Self {
-                id.as_str().to_owned()
+            impl #impl_generics PartialEq<&'_ #id_ty> for Box<#id_ty> {
+                fn eq(&self, other: &&#id_ty) -> bool {
+                    self.as_str() == other.as_str()
+                }
             }
-        }
 
-        impl #impl_generics From<Box<#id_ty>> for String {
-            fn from(id: Box<#id_ty>) -> Self {
-                id.into_owned().into()
+            impl #impl_generics PartialEq<Box<#id_ty>> for #id_ty {
+                fn eq(&self, other: &Box<#id_ty>) -> bool {
+                    self.as_str() == other.as_str()
+                }
             }
-        }
 
-        impl #impl_generics From<&#id_ty> for Box<#id_ty> {
-            fn from(id: &#id_ty) -> Self {
-                <#id_ty>::from_box(id.as_str().into())
+            impl #impl_generics PartialEq<Box<#id_ty>> for &'_ #id_ty {
+                fn eq(&self, other: &Box<#id_ty>) -> bool {
+                    self.as_str() == other.as_str()
+                }
             }
-        }
 
-        impl #impl_generics From<&#id_ty> for std::rc::Rc<#id_ty> {
-            fn from(s: &#id_ty) -> std::rc::Rc<#id_ty> {
-                let rc = std::rc::Rc::<str>::from(s.as_str());
-                <#id_ty>::from_rc(rc)
+            impl #impl_generics std::fmt::Debug for #id_ty {
+                fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    <str as std::fmt::Debug>::fmt(self.as_str(), f)
+                }
             }
-        }
 
-        impl #impl_generics From<&#id_ty> for std::sync::Arc<#id_ty> {
-            fn from(s: &#id_ty) -> std::sync::Arc<#id_ty> {
-                let arc = std::sync::Arc::<str>::from(s.as_str());
-                <#id_ty>::from_arc(arc)
+            impl #impl_generics std::fmt::Display for #id_ty {
+                fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    write!(f, "{}", self.as_str())
+                }
             }
-        }
 
-        impl #impl_generics PartialEq<#id_ty> for Box<#id_ty> {
-            fn eq(&self, other: &#id_ty) -> bool {
-                self.as_str() == other.as_str()
+            impl #impl_generics serde::Serialize for #id_ty {
+                fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+                where
+                    S: serde::Serializer,
+                {
+                    serializer.serialize_str(self.as_str())
+                }
             }
-        }
 
-        impl #impl_generics PartialEq<&'_ #id_ty> for Box<#id_ty> {
-            fn eq(&self, other: &&#id_ty) -> bool {
-                self.as_str() == other.as_str()
-            }
-        }
-
-        impl #impl_generics PartialEq<Box<#id_ty>> for #id_ty {
-            fn eq(&self, other: &Box<#id_ty>) -> bool {
-                self.as_str() == other.as_str()
-            }
-        }
-
-        impl #impl_generics PartialEq<Box<#id_ty>> for &'_ #id_ty {
-            fn eq(&self, other: &Box<#id_ty>) -> bool {
-                self.as_str() == other.as_str()
-            }
-        }
-
-        impl #impl_generics std::fmt::Debug for #id_ty {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                <str as std::fmt::Debug>::fmt(self.as_str(), f)
-            }
-        }
-
-        impl #impl_generics std::fmt::Display for #id_ty {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                write!(f, "{}", self.as_str())
-            }
-        }
-
-        impl #impl_generics serde::Serialize for #id_ty {
-            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where
-                S: serde::Serializer,
-            {
-                serializer.serialize_str(self.as_str())
-            }
-        }
-
-        #partial_eq_string
-        #box_partial_eq_string
-        #extra_impls
-    })
+            #partial_eq_string
+            #box_partial_eq_string
+            #extra_impls
+        })
+    } else {
+        panic!("derive_from_event_to_enum can only be used on structs")
+    }
 }
 
-fn expand_owned_id(input: &ItemStruct) -> TokenStream {
-    let id = &input.ident;
+fn expand_owned_id(input: &Struct) -> TokenStream {
+    let id = &input.name;
     let owned = format_ident!("Owned{id}");
 
     let doc_header = format!("Owned variant of {id}");
-    let (impl_generics, ty_generics, _where_clause) = input.generics.split_for_impl();
+    let impl_generics = input.generic_params.unwrap().as_inline_args();
+    let ty_generics = input.generic_params.unwrap().params.iter().filter_map(|(param, _)| {
+        if param.is_ty() {
+            Some(param.name)
+        } else {
+            None
+        }
+    });
 
     let id_ty = quote! { #id #ty_generics };
     let owned_ty = quote! { #owned #ty_generics };
@@ -403,8 +424,8 @@ fn expand_owned_id(input: &ItemStruct) -> TokenStream {
     }
 }
 
-fn expand_checked_impls(input: &ItemStruct, validate: Path) -> TokenStream {
-    let id = &input.ident;
+fn expand_checked_impls(input: &Struct, validate: Path) -> TokenStream {
+    let id = &input.name;
     let owned = format_ident!("Owned{id}");
 
     let (impl_generics, ty_generics, _where_clause) = input.generics.split_for_impl();
@@ -551,8 +572,8 @@ fn expand_checked_impls(input: &ItemStruct, validate: Path) -> TokenStream {
     }
 }
 
-fn expand_unchecked_impls(input: &ItemStruct) -> TokenStream {
-    let id = &input.ident;
+fn expand_unchecked_impls(input: &Struct) -> TokenStream {
+    let id = &input.name;
     let owned = format_ident!("Owned{id}");
 
     quote! {
@@ -625,7 +646,7 @@ fn expand_unchecked_impls(input: &ItemStruct) -> TokenStream {
     }
 }
 
-fn expand_partial_eq_string(ty: TokenStream, impl_generics: &ImplGenerics<'_>) -> TokenStream {
+fn expand_partial_eq_string(ty: TokenStream, impl_generics: &InlineGenericArgs<'_>) -> TokenStream {
     IntoIterator::into_iter([
         (ty.clone(), quote! { str }),
         (ty.clone(), quote! { &str }),
@@ -657,13 +678,13 @@ struct IdZstMeta {
 }
 
 impl IdZstMeta {
-    fn merge(self, other: IdZstMeta) -> syn::Result<Self> {
+    fn merge(self, other: IdZstMeta) -> Result<Self, venial::Error> {
         let validate = match (self.validate, other.validate) {
             (None, None) => None,
             (Some(val), None) | (None, Some(val)) => Some(val),
             (Some(a), Some(b)) => {
-                let mut error = syn::Error::new_spanned(b, "duplicate attribute argument");
-                error.combine(syn::Error::new_spanned(a, "note: first one here"));
+                let mut error = venial::Error::new_at_tokens(b, "duplicate attribute argument");
+                error.combine(venial::Error::new_at_tokens(a, "note: first one here"));
                 return Err(error);
             }
         };
@@ -673,7 +694,7 @@ impl IdZstMeta {
 }
 
 impl Parse for IdZstMeta {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let _: kw::validate = input.parse()?;
         let _: Token![=] = input.parse()?;
         let validate = Some(input.parse()?);

@@ -16,7 +16,7 @@ use ruma_identifiers_validation::{
     device_key_id, event_id, key_id, mxc_uri, room_alias_id, room_id, room_version_id, server_name,
     user_id,
 };
-use syn::{parse_macro_input, DeriveInput, ItemEnum, ItemStruct};
+use venial::parse_declaration;
 
 mod api;
 mod events;
@@ -76,18 +76,21 @@ use self::{
 //// supported:  https://github.com/rust-lang/rust/issues/74563
 #[proc_macro]
 pub fn event_enum(input: TokenStream) -> TokenStream {
-    let event_enum_input = syn::parse_macro_input!(input as EventEnumInput);
+    // FIXME: This is actually incorrect and fails as venial apparently doesnt allow custom syntax
+    // at the time. So EventEnumInput is never called making this fail as parse_declaration
+    // expect a well-formed enum.
+    let event_enum_input = parse_declaration(input.into()) as EventEnumInput;
 
     let ruma_common = import_ruma_common();
 
     let enums = event_enum_input
         .enums
         .iter()
-        .map(|e| expand_event_enums(e).unwrap_or_else(syn::Error::into_compile_error))
+        .map(|e| expand_event_enums(e).unwrap_or_else(|err| err.to_compile_error()))
         .collect::<pm2::TokenStream>();
 
     let event_types = expand_event_type_enum(event_enum_input, ruma_common)
-        .unwrap_or_else(syn::Error::into_compile_error);
+        .unwrap_or_else(|err| err.to_compile_error());
 
     let tokens = quote! {
         #enums
@@ -101,36 +104,36 @@ pub fn event_enum(input: TokenStream) -> TokenStream {
 #[proc_macro_derive(EventContent, attributes(ruma_event))]
 pub fn derive_event_content(input: TokenStream) -> TokenStream {
     let ruma_common = import_ruma_common();
-    let input = parse_macro_input!(input as DeriveInput);
+    let input = parse_declaration(input.into());
 
-    expand_event_content(&input, &ruma_common).unwrap_or_else(syn::Error::into_compile_error).into()
+    expand_event_content(&input, &ruma_common).unwrap_or_else(|err| err.to_compile_error()).into()
 }
 
 /// Generates implementations needed to serialize and deserialize Matrix events.
 #[proc_macro_derive(Event, attributes(ruma_event))]
 pub fn derive_event(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    expand_event(input).unwrap_or_else(syn::Error::into_compile_error).into()
+    let input = parse_declaration(input.into());
+    expand_event(input).unwrap_or_else(|err| err.to_compile_error()).into()
 }
 
 /// Generates `From` implementations for event enums.
 #[proc_macro_derive(EventEnumFromEvent)]
 pub fn derive_from_event_to_enum(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
+    let input = parse_declaration(input.into());
     expand_from_impls_derived(input).into()
 }
 
 /// Generate methods and trait impl's for ZST identifier type.
 #[proc_macro_derive(IdZst, attributes(ruma_id))]
 pub fn derive_id_zst(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as ItemStruct);
-    expand_id_zst(input).unwrap_or_else(syn::Error::into_compile_error).into()
+    let input = parse_declaration(input.into());
+    expand_id_zst(input).unwrap_or_else(|err| err.to_compile_error()).into()
 }
 
 /// Compile-time checked `DeviceKeyId` construction.
 #[proc_macro]
 pub fn device_key_id(input: TokenStream) -> TokenStream {
-    let IdentifierInput { dollar_crate, id } = parse_macro_input!(input as IdentifierInput);
+    let IdentifierInput { dollar_crate, id } = parse_declaration(input as IdentifierInput);
     assert!(device_key_id::validate(&id.value()).is_ok(), "Invalid device key id");
 
     let output = quote! {
@@ -143,7 +146,7 @@ pub fn device_key_id(input: TokenStream) -> TokenStream {
 /// Compile-time checked `EventId` construction.
 #[proc_macro]
 pub fn event_id(input: TokenStream) -> TokenStream {
-    let IdentifierInput { dollar_crate, id } = parse_macro_input!(input as IdentifierInput);
+    let IdentifierInput { dollar_crate, id } = parse_declaration(input as IdentifierInput);
     assert!(event_id::validate(&id.value()).is_ok(), "Invalid event id");
 
     let output = quote! {
@@ -156,7 +159,7 @@ pub fn event_id(input: TokenStream) -> TokenStream {
 /// Compile-time checked `RoomAliasId` construction.
 #[proc_macro]
 pub fn room_alias_id(input: TokenStream) -> TokenStream {
-    let IdentifierInput { dollar_crate, id } = parse_macro_input!(input as IdentifierInput);
+    let IdentifierInput { dollar_crate, id } = parse_declaration(input as IdentifierInput);
     assert!(room_alias_id::validate(&id.value()).is_ok(), "Invalid room_alias_id");
 
     let output = quote! {
@@ -169,7 +172,7 @@ pub fn room_alias_id(input: TokenStream) -> TokenStream {
 /// Compile-time checked `RoomId` construction.
 #[proc_macro]
 pub fn room_id(input: TokenStream) -> TokenStream {
-    let IdentifierInput { dollar_crate, id } = parse_macro_input!(input as IdentifierInput);
+    let IdentifierInput { dollar_crate, id } = parse_declaration(input as IdentifierInput);
     assert!(room_id::validate(&id.value()).is_ok(), "Invalid room_id");
 
     let output = quote! {
@@ -182,7 +185,7 @@ pub fn room_id(input: TokenStream) -> TokenStream {
 /// Compile-time checked `RoomVersionId` construction.
 #[proc_macro]
 pub fn room_version_id(input: TokenStream) -> TokenStream {
-    let IdentifierInput { dollar_crate, id } = parse_macro_input!(input as IdentifierInput);
+    let IdentifierInput { dollar_crate, id } = parse_declaration(input as IdentifierInput);
     assert!(room_version_id::validate(&id.value()).is_ok(), "Invalid room_version_id");
 
     let output = quote! {
@@ -195,7 +198,7 @@ pub fn room_version_id(input: TokenStream) -> TokenStream {
 /// Compile-time checked `ServerSigningKeyId` construction.
 #[proc_macro]
 pub fn server_signing_key_id(input: TokenStream) -> TokenStream {
-    let IdentifierInput { dollar_crate, id } = parse_macro_input!(input as IdentifierInput);
+    let IdentifierInput { dollar_crate, id } = parse_declaration(input as IdentifierInput);
     assert!(key_id::validate(&id.value()).is_ok(), "Invalid server_signing_key_id");
 
     let output = quote! {
@@ -208,7 +211,7 @@ pub fn server_signing_key_id(input: TokenStream) -> TokenStream {
 /// Compile-time checked `ServerName` construction.
 #[proc_macro]
 pub fn server_name(input: TokenStream) -> TokenStream {
-    let IdentifierInput { dollar_crate, id } = parse_macro_input!(input as IdentifierInput);
+    let IdentifierInput { dollar_crate, id } = parse_declaration(input as IdentifierInput);
     assert!(server_name::validate(&id.value()).is_ok(), "Invalid server_name");
 
     let output = quote! {
@@ -221,7 +224,7 @@ pub fn server_name(input: TokenStream) -> TokenStream {
 /// Compile-time checked `MxcUri` construction.
 #[proc_macro]
 pub fn mxc_uri(input: TokenStream) -> TokenStream {
-    let IdentifierInput { dollar_crate, id } = parse_macro_input!(input as IdentifierInput);
+    let IdentifierInput { dollar_crate, id } = parse_declaration(input as IdentifierInput);
     assert!(mxc_uri::validate(&id.value()).is_ok(), "Invalid mxc://");
 
     let output = quote! {
@@ -234,7 +237,7 @@ pub fn mxc_uri(input: TokenStream) -> TokenStream {
 /// Compile-time checked `UserId` construction.
 #[proc_macro]
 pub fn user_id(input: TokenStream) -> TokenStream {
-    let IdentifierInput { dollar_crate, id } = parse_macro_input!(input as IdentifierInput);
+    let IdentifierInput { dollar_crate, id } = parse_declaration(input as IdentifierInput);
     assert!(user_id::validate(&id.value()).is_ok(), "Invalid user_id");
 
     let output = quote! {
@@ -249,22 +252,22 @@ pub fn user_id(input: TokenStream) -> TokenStream {
 /// This type will be a fully-owned version of the input type, using no lifetime generics.
 #[proc_macro_derive(Incoming, attributes(incoming_derive))]
 pub fn derive_incoming(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    expand_derive_incoming(input).unwrap_or_else(syn::Error::into_compile_error).into()
+    let input = parse_declaration(input.into());
+    expand_derive_incoming(input).unwrap_or_else(|err| err.to_compile_error()).into()
 }
 
 /// Derive the `AsRef<str>` trait for an enum.
 #[proc_macro_derive(AsRefStr, attributes(ruma_enum))]
 pub fn derive_enum_as_ref_str(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as ItemEnum);
-    expand_enum_as_ref_str(&input).unwrap_or_else(syn::Error::into_compile_error).into()
+    let input = parse_declaration(input.into());
+    expand_enum_as_ref_str(&input).unwrap_or_else(|err| err.to_compile_error()).into()
 }
 
 /// Derive the `From<T: AsRef<str> + Into<Box<str>>>` trait for an enum.
 #[proc_macro_derive(FromString, attributes(ruma_enum))]
 pub fn derive_enum_from_string(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as ItemEnum);
-    expand_enum_from_string(&input).unwrap_or_else(syn::Error::into_compile_error).into()
+    let input = parse_declaration(input.into());
+    expand_enum_from_string(&input).unwrap_or_else(|err| err.to_compile_error()).into()
 }
 
 // FIXME: The following macros aren't actually interested in type details beyond name (and possibly
@@ -273,61 +276,59 @@ pub fn derive_enum_from_string(input: TokenStream) -> TokenStream {
 /// Derive the `as_str()` method using the `AsRef<str>` implementation of the type.
 #[proc_macro_derive(AsStrAsRefStr, attributes(ruma_enum))]
 pub fn derive_as_str_as_ref_str(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    expand_as_str_as_ref_str(&input.ident).unwrap_or_else(syn::Error::into_compile_error).into()
+    let input = parse_declaration(input.into());
+    expand_as_str_as_ref_str(&input.ident).unwrap_or_else(|err| err.to_compile_error()).into()
 }
 
 /// Derive the `fmt::Display` trait using the `AsRef<str>` implementation of the type.
 #[proc_macro_derive(DisplayAsRefStr)]
 pub fn derive_display_as_ref_str(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    expand_display_as_ref_str(&input.ident).unwrap_or_else(syn::Error::into_compile_error).into()
+    let input = parse_declaration(input.into());
+    expand_display_as_ref_str(&input.ident).unwrap_or_else(|err| err.to_compile_error()).into()
 }
 
 /// Derive the `Serialize` trait using the `AsRef<str>` implementation of the type.
 #[proc_macro_derive(SerializeAsRefStr)]
 pub fn derive_serialize_as_ref_str(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    expand_serialize_as_ref_str(&input.ident).unwrap_or_else(syn::Error::into_compile_error).into()
+    let input = parse_declaration(input.into());
+    expand_serialize_as_ref_str(&input.ident).unwrap_or_else(|err| err.to_compile_error()).into()
 }
 
 /// Derive the `Deserialize` trait using the `From<Cow<str>>` implementation of the type.
 #[proc_macro_derive(DeserializeFromCowStr)]
 pub fn derive_deserialize_from_cow_str(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
+    let input = parse_declaration(input.into());
     expand_deserialize_from_cow_str(&input.ident)
-        .unwrap_or_else(syn::Error::into_compile_error)
+        .unwrap_or_else(|err| err.to_compile_error())
         .into()
 }
 
 /// Derive the `PartialOrd` trait using the `AsRef<str>` implementation of the type.
 #[proc_macro_derive(PartialOrdAsRefStr)]
 pub fn derive_partial_ord_as_ref_str(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    expand_partial_ord_as_ref_str(&input.ident)
-        .unwrap_or_else(syn::Error::into_compile_error)
-        .into()
+    let input = parse_declaration(input.into());
+    expand_partial_ord_as_ref_str(&input.ident).unwrap_or_else(|err| err.to_compile_error()).into()
 }
 
 /// Derive the `Ord` trait using the `AsRef<str>` implementation of the type.
 #[proc_macro_derive(OrdAsRefStr)]
 pub fn derive_ord_as_ref_str(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    expand_ord_as_ref_str(&input.ident).unwrap_or_else(syn::Error::into_compile_error).into()
+    let input = parse_declaration(input.into());
+    expand_ord_as_ref_str(&input.ident).unwrap_or_else(|err| err.to_compile_error()).into()
 }
 
 /// Derive the `PartialEq` trait using the `AsRef<str>` implementation of the type.
 #[proc_macro_derive(PartialEqAsRefStr)]
 pub fn derive_partial_eq_as_ref_str(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    expand_partial_eq_as_ref_str(&input.ident).unwrap_or_else(syn::Error::into_compile_error).into()
+    let input = parse_declaration(input.into());
+    expand_partial_eq_as_ref_str(&input.ident).unwrap_or_else(|err| err.to_compile_error()).into()
 }
 
 /// Shorthand for the derives `AsRefStr`, `FromString`, `DisplayAsRefStr`, `SerializeAsRefStr` and
 /// `DeserializeFromCowStr`.
 #[proc_macro_derive(StringEnum, attributes(ruma_enum))]
 pub fn derive_string_enum(input: TokenStream) -> TokenStream {
-    fn expand_all(input: ItemEnum) -> syn::Result<proc_macro2::TokenStream> {
+    fn expand_all(input: ItemEnum) -> Result<proc_macro2::TokenStream, venial::Error> {
         let as_ref_str_impl = expand_enum_as_ref_str(&input)?;
         let from_string_impl = expand_enum_from_string(&input)?;
         let as_str_impl = expand_as_str_as_ref_str(&input.ident)?;
@@ -345,8 +346,8 @@ pub fn derive_string_enum(input: TokenStream) -> TokenStream {
         })
     }
 
-    let input = parse_macro_input!(input as ItemEnum);
-    expand_all(input).unwrap_or_else(syn::Error::into_compile_error).into()
+    let input = parse_declaration(input.into());
+    expand_all(input).unwrap_or_else(|err| err.to_compile_error()).into()
 }
 
 /// A derive macro that generates no code, but registers the serde attribute so both `#[serde(...)]`
@@ -366,22 +367,22 @@ pub fn fake_derive_serde(_input: TokenStream) -> TokenStream {
 /// [ruma-common]: https://github.com/ruma/ruma/tree/main/ruma-common
 #[proc_macro]
 pub fn ruma_api(input: TokenStream) -> TokenStream {
-    let api = parse_macro_input!(input as Api);
+    let api = parse_declaration(input as Api);
     api.expand_all().into()
 }
 
 /// Internal helper taking care of the request-specific parts of `ruma_api!`.
 #[proc_macro_derive(Request, attributes(ruma_api))]
 pub fn derive_request(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    expand_derive_request(input).unwrap_or_else(syn::Error::into_compile_error).into()
+    let input = parse_declaration(input.into());
+    expand_derive_request(input).unwrap_or_else(|err| err.to_compile_error()).into()
 }
 
 /// Internal helper taking care of the response-specific parts of `ruma_api!`.
 #[proc_macro_derive(Response, attributes(ruma_api))]
 pub fn derive_response(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    expand_derive_response(input).unwrap_or_else(syn::Error::into_compile_error).into()
+    let input = parse_declaration(input.into());
+    expand_derive_response(input).unwrap_or_else(|err| err.to_compile_error()).into()
 }
 
 /// A derive macro that generates no code, but registers the ruma_api attribute so both

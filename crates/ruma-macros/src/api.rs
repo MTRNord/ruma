@@ -2,11 +2,7 @@
 
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{
-    braced,
-    parse::{Parse, ParseStream},
-    Attribute, Field, Token, Type,
-};
+use venial::Attribute;
 
 use self::{api_metadata::Metadata, api_request::Request, api_response::Response};
 use crate::util::import_ruma_common;
@@ -98,7 +94,7 @@ impl Api {
 }
 
 impl Parse for Api {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let metadata: Metadata = input.parse()?;
 
         let req_attrs = input.call(Attribute::parse_outer)?;
@@ -115,7 +111,7 @@ impl Parse for Api {
         let response = if input.peek(kw::response) {
             Some(parse_response(input, attributes)?)
         } else if !attributes.is_empty() {
-            return Err(syn::Error::new_spanned(
+            return Err(venial::Error::new_at_tokens(
                 &attributes[0],
                 "attributes are not supported on the error type",
             ));
@@ -137,7 +133,10 @@ impl Parse for Api {
     }
 }
 
-fn parse_request(input: ParseStream<'_>, attributes: Vec<Attribute>) -> syn::Result<Request> {
+fn parse_request(
+    input: ParseStream<'_>,
+    attributes: Vec<Attribute>,
+) -> Result<Request, venial::Error> {
     let request_kw: kw::request = input.parse()?;
     let _: Token![:] = input.parse()?;
     let fields;
@@ -148,7 +147,10 @@ fn parse_request(input: ParseStream<'_>, attributes: Vec<Attribute>) -> syn::Res
     Ok(Request { request_kw, attributes, fields })
 }
 
-fn parse_response(input: ParseStream<'_>, attributes: Vec<Attribute>) -> syn::Result<Response> {
+fn parse_response(
+    input: ParseStream<'_>,
+    attributes: Vec<Attribute>,
+) -> Result<Response, venial::Error> {
     let response_kw: kw::response = input.parse()?;
     let _: Token![:] = input.parse()?;
     let fields;

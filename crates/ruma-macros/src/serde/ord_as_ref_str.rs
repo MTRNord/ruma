@@ -1,7 +1,7 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
 
-pub fn expand_partial_ord_as_ref_str(ident: &Ident) -> syn::Result<TokenStream> {
+pub fn expand_partial_ord_as_ref_str(ident: &Ident) -> Result<TokenStream, venial::Error> {
     Ok(quote! {
         #[automatically_derived]
         #[allow(deprecated)]
@@ -14,7 +14,7 @@ pub fn expand_partial_ord_as_ref_str(ident: &Ident) -> syn::Result<TokenStream> 
     })
 }
 
-pub fn expand_ord_as_ref_str(ident: &Ident) -> syn::Result<TokenStream> {
+pub fn expand_ord_as_ref_str(ident: &Ident) -> Result<TokenStream, venial::Error> {
     Ok(quote! {
         #[automatically_derived]
         #[allow(deprecated)]

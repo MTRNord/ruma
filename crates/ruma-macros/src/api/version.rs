@@ -2,7 +2,9 @@ use std::num::NonZeroU8;
 
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
-use syn::{parse::Parse, Error, LitFloat};
+use venial::Error;
+
+use crate::util::LitFloat;
 
 #[derive(Clone)]
 pub struct MatrixVersionLiteral {
@@ -11,11 +13,11 @@ pub struct MatrixVersionLiteral {
 }
 
 impl Parse for MatrixVersionLiteral {
-    fn parse(input: syn::parse::ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: syn::parse::ParseStream<'_>) -> Result<Self, venial::Error> {
         let fl: LitFloat = input.parse()?;
 
         if !fl.suffix().is_empty() {
-            return Err(Error::new_spanned(
+            return Err(Error::new_at_tokens(
                 fl,
                 "matrix version has to be only two positive numbers separated by a `.`",
             ));
@@ -24,15 +26,15 @@ impl Parse for MatrixVersionLiteral {
         let ver_vec: Vec<String> = fl.to_string().split('.').map(&str::to_owned).collect();
 
         let ver: [String; 2] = ver_vec.try_into().map_err(|_| {
-            Error::new_spanned(&fl, "did not contain only both an X and Y value like X.Y")
+            Error::new_at_tokens(&fl, "did not contain only both an X and Y value like X.Y")
         })?;
 
         let major: NonZeroU8 = ver[0].parse().map_err(|e| {
-            Error::new_spanned(&fl, format!("major number failed to parse as >0 number: {e}"))
+            Error::new_at_tokens(&fl, format!("major number failed to parse as >0 number: {e}"))
         })?;
         let minor: u8 = ver[1]
             .parse()
-            .map_err(|e| Error::new_spanned(&fl, format!("minor number failed to parse: {e}")))?;
+            .map_err(|e| Error::new_at_tokens(&fl, format!("minor number failed to parse: {e}")))?;
 
         Ok(Self { major, minor })
     }

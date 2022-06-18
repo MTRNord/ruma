@@ -1,23 +1,15 @@
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote};
-use syn::{
-    parse::{Parse, ParseStream},
-    parse_quote,
-    punctuated::Punctuated,
-    AngleBracketedGenericArguments, Attribute, Data, DeriveInput, GenericArgument, GenericParam,
-    Generics, Ident, ItemType, ParenthesizedGenericArguments, Path, PathArguments, Token, Type,
-    TypePath, TypeReference, TypeSlice,
-};
+use venial::{Attribute, Declaration, Punctuated};
 
 use crate::util::import_ruma_common;
 
-pub fn expand_derive_incoming(mut ty_def: DeriveInput) -> syn::Result<TokenStream> {
+pub fn expand_derive_incoming(mut ty_def: Declaration) -> Result<TokenStream, venial::Error> {
     let ruma_common = import_ruma_common();
 
     let mut found_lifetime = false;
-    match &mut ty_def.data {
-        Data::Union(_) => panic!("#[derive(Incoming)] does not support Union types"),
-        Data::Enum(e) => {
+    match &mut ty_def {
+        Declaration::Enum(e) => {
             for var in &mut e.variants {
                 for field in &mut var.fields {
                     if strip_lifetimes(&mut field.ty, &ruma_common) {
@@ -26,24 +18,29 @@ pub fn expand_derive_incoming(mut ty_def: DeriveInput) -> syn::Result<TokenStrea
                 }
             }
         }
-        Data::Struct(s) => {
+        Declaration::Struct(s) => {
             for field in &mut s.fields {
                 if !matches!(field.vis, syn::Visibility::Public(_)) {
-                    return Err(syn::Error::new_spanned(field, "All fields must be marked `pub`"));
+                    return Err(venial::Error::new_at_tokens(
+                        field,
+                        "All fields must be marked `pub`",
+                    ));
                 }
                 if strip_lifetimes(&mut field.ty, &ruma_common) {
                     found_lifetime = true;
                 }
             }
         }
+        _ => panic!("#[derive(Incoming)] does only support enums and structs"),
     }
 
-    let ident = format_ident!("Incoming{}", ty_def.ident, span = Span::call_site());
+    let ident = format_ident!("Incoming{}", ty_def.name(), span = Span::call_site());
 
     if !found_lifetime {
         let doc = format!(
             "Convenience type alias for [{}], for consistency with other [{}] types.",
-            &ty_def.ident, ident
+            &ty_def.name(),
+            ident
         );
 
         let mut type_alias: ItemType = parse_quote! { type X = Y; };
@@ -68,7 +65,7 @@ pub fn expand_derive_incoming(mut ty_def: DeriveInput) -> syn::Result<TokenStrea
             .iter()
             .filter(|attr| attr.path.is_ident("incoming_derive"))
             .map(|attr| attr.parse_args())
-            .collect::<syn::Result<Vec<Meta>>>()?
+            .collect::<Result<Vec<Meta>, venial::Error>>()?
             .into_iter()
             .flat_map(|meta| meta.derive_macs)
             .filter_map(|derive_mac| match derive_mac {
@@ -89,7 +86,7 @@ pub fn expand_derive_incoming(mut ty_def: DeriveInput) -> syn::Result<TokenStrea
     ty_def.attrs.retain(filter_input_attrs);
     clean_generics(&mut ty_def.generics);
 
-    let doc = format!("'Incoming' variant of [{}].", &ty_def.ident);
+    let doc = format!("'Incoming' variant of [{}].", &ty_def.name());
     ty_def.ident = ident;
 
     Ok(quote! {
@@ -256,9 +253,9 @@ pub struct Meta {
 }
 
 impl Parse for Meta {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         Ok(Self {
-            derive_macs: Punctuated::<_, Token![,]>::parse_terminated(input)?.into_iter().collect(),
+            derive_macs: Punctuated::<_>::parse_terminated(input)?.into_iter().collect(),
         })
     }
 }
@@ -269,13 +266,13 @@ pub enum DeriveMac {
 }
 
 impl Parse for DeriveMac {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         if input.peek(Token![!]) {
             let _: Token![!] = input.parse()?;
             let mac: Ident = input.parse()?;
 
             if mac != "Deserialize" {
-                return Err(syn::Error::new_spanned(
+                return Err(venial::Error::new_at_tokens(
                     mac,
                     "Negative incoming_derive can only be used for Deserialize",
                 ));

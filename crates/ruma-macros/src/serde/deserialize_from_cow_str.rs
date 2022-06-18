@@ -3,7 +3,7 @@ use quote::quote;
 
 use crate::util::import_ruma_common;
 
-pub fn expand_deserialize_from_cow_str(ident: &Ident) -> syn::Result<TokenStream> {
+pub fn expand_deserialize_from_cow_str(ident: &Ident) -> Result<TokenStream, venial::Error> {
     let ruma_common = import_ruma_common();
 
     Ok(quote! {

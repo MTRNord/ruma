@@ -1,27 +1,22 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use proc_macro2::TokenStream;
+use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
-use syn::{
-    parse::{Parse, ParseStream},
-    parse_quote,
-    punctuated::Punctuated,
-    DeriveInput, Field, Generics, Ident, Lifetime, LitStr, Token, Type,
-};
+use venial::{Declaration, Punctuated};
 
 use super::{
     attribute::{DeriveRequestMeta, RequestMeta},
     auth_scheme::AuthScheme,
     util::collect_lifetime_idents,
 };
-use crate::util::import_ruma_common;
+use crate::util::{import_ruma_common, LitStr};
 
 mod incoming;
 mod outgoing;
 
-pub fn expand_derive_request(input: DeriveInput) -> syn::Result<TokenStream> {
-    let fields = match input.data {
-        syn::Data::Struct(s) => s.fields,
+pub fn expand_derive_request(input: Declaration) -> Result<TokenStream, venial::Error> {
+    let fields = match input {
+        Declaration::Struct(s) => s.fields,
         _ => panic!("This derive macro only works on structs"),
     };
 
@@ -44,7 +39,7 @@ pub fn expand_derive_request(input: DeriveInput) -> syn::Result<TokenStream> {
 
             Ok(f)
         })
-        .collect::<syn::Result<_>>()?;
+        .collect::<Result<_, venial::Error>>()?;
 
     let mut authentication = None;
     let mut error_ty = None;
@@ -58,8 +53,7 @@ pub fn expand_derive_request(input: DeriveInput) -> syn::Result<TokenStream> {
             continue;
         }
 
-        let metas =
-            attr.parse_args_with(Punctuated::<DeriveRequestMeta, Token![,]>::parse_terminated)?;
+        let metas = attr.parse_args_with(Punctuated::<DeriveRequestMeta>::parse_terminated)?;
         for meta in metas {
             match meta {
                 DeriveRequestMeta::Authentication(t) => authentication = Some(parse_quote!(#t)),
@@ -247,7 +241,7 @@ impl Request {
         }
     }
 
-    pub(super) fn check(&self) -> syn::Result<()> {
+    pub(super) fn check(&self) -> Result<(), venial::Error> {
         // TODO: highlight problematic fields
 
         let path_fields: Vec<_> =
@@ -265,7 +259,7 @@ impl Request {
             0 => false,
             1 => true,
             _ => {
-                return Err(syn::Error::new_spanned(
+                return Err(venial::Error::new_at_tokens(
                     &self.ident,
                     "Can't have more than one newtype body field",
                 ))
@@ -278,7 +272,7 @@ impl Request {
             0 => false,
             1 => true,
             _ => {
-                return Err(syn::Error::new_spanned(
+                return Err(venial::Error::new_at_tokens(
                     &self.ident,
                     "Can't have more than one query_map field",
                 ))
@@ -289,14 +283,14 @@ impl Request {
         let has_query_fields = self.fields.iter().any(|f| matches!(f, RequestField::Query(_)));
 
         if has_newtype_body_field && has_body_fields {
-            return Err(syn::Error::new_spanned(
+            return Err(venial::Error::new_at_tokens(
                 &self.ident,
                 "Can't have both a newtype body field and regular body fields",
             ));
         }
 
         if has_query_map_field && has_query_fields {
-            return Err(syn::Error::new_spanned(
+            return Err(venial::Error::new_at_tokens(
                 &self.ident,
                 "Can't have both a query map field and regular query fields",
             ));
@@ -304,14 +298,14 @@ impl Request {
 
         // TODO when/if `&[(&str, &str)]` is supported remove this
         if has_query_map_field && !self.lifetimes.query.is_empty() {
-            return Err(syn::Error::new_spanned(
+            return Err(venial::Error::new_at_tokens(
                 &self.ident,
                 "Lifetimes are not allowed for query_map fields",
             ));
         }
 
         if self.method == "GET" && (has_body_fields || has_newtype_body_field) {
-            return Err(syn::Error::new_spanned(
+            return Err(venial::Error::new_at_tokens(
                 &self.ident,
                 "GET endpoints can't have body fields",
             ));
@@ -320,7 +314,7 @@ impl Request {
         Ok(())
     }
 
-    fn check_path(&self, fields: &[&Field], path: Option<&LitStr>) -> syn::Result<()> {
+    fn check_path(&self, fields: &[&Field], path: Option<&LitStr>) -> Result<(), venial::Error> {
         let path = if let Some(lit) = path { lit } else { return Ok(()) };
 
         let path_args: Vec<_> = path
@@ -336,11 +330,11 @@ impl Request {
         for (name, field) in field_map.iter() {
             if !path_args.contains(name) {
                 return Err({
-                    let mut err = syn::Error::new_spanned(
+                    let mut err = venial::Error::new_at_tokens(
                         field,
                         "this path argument field is not defined in...",
                     );
-                    err.combine(syn::Error::new_spanned(path, "...this path."));
+                    err.combine(venial::Error::new_at_tokens(path, "...this path."));
                     err
                 });
             }
@@ -349,7 +343,7 @@ impl Request {
         // test if all path fields exists in macro fields
         for arg in &path_args {
             if !field_map.contains_key(arg) {
-                return Err(syn::Error::new_spanned(
+                return Err(venial::Error::new_at_tokens(
                     path,
                     format!(
                         "a corresponding request path argument field for \"{}\" does not exist",
@@ -459,9 +453,9 @@ impl RequestField {
 }
 
 impl TryFrom<Field> for RequestField {
-    type Error = syn::Error;
+    type Error = venial::Error;
 
-    fn try_from(mut field: Field) -> syn::Result<Self> {
+    fn try_from(mut field: Field) -> Result<Self, venial::Error> {
         let (mut api_attrs, attrs) =
             field.attrs.into_iter().partition::<Vec<_>, _>(|attr| attr.path.is_ident("ruma_api"));
         field.attrs = attrs;
@@ -470,7 +464,7 @@ impl TryFrom<Field> for RequestField {
             [] => None,
             [_] => Some(api_attrs.pop().unwrap().parse_args::<RequestMeta>()?),
             _ => {
-                return Err(syn::Error::new_spanned(
+                return Err(venial::Error::new_at_tokens(
                     &api_attrs[1],
                     "multiple field kind attribute found, there can only be one",
                 ));

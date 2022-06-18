@@ -1,6 +1,5 @@
 use proc_macro2::TokenStream;
 use quote::ToTokens;
-use syn::parse::{Parse, ParseStream};
 
 mod kw {
     syn::custom_keyword!(None);
@@ -17,7 +16,7 @@ pub enum AuthScheme {
 }
 
 impl Parse for AuthScheme {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let lookahead = input.lookahead1();
 
         if lookahead.peek(kw::None) {

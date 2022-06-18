@@ -2,12 +2,10 @@
 
 use std::collections::btree_map::{BTreeMap, Entry};
 
-use proc_macro2::TokenStream;
+use proc_macro2::{TokenStream, Ident};
 use quote::quote;
-use syn::{
-    parse_quote, punctuated::Punctuated, spanned::Spanned, visit::Visit, Attribute, Field, Ident,
-    Lifetime, Token,
-};
+use venial::{Punctuated, Attribute};
+
 
 use super::{
     api_metadata::Metadata,
@@ -24,7 +22,7 @@ pub(crate) struct Request {
     pub(super) attributes: Vec<Attribute>,
 
     /// The fields of the request.
-    pub(super) fields: Punctuated<Field, Token![,]>,
+    pub(super) fields: Punctuated<Field>,
 }
 
 impl Request {

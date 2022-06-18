@@ -2,7 +2,7 @@
 
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
-use syn::{parse_quote, Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, GenericParam};
+use venial::{Declaration, NamedField, NamedStructFields, Struct, StructFields};
 
 use super::{
     event_parse::{to_kind_variation, EventKind, EventKindVariation},
@@ -11,30 +11,30 @@ use super::{
 use crate::{import_ruma_common, util::to_camel_case};
 
 /// Derive `Event` macro code generation.
-pub fn expand_event(input: DeriveInput) -> syn::Result<TokenStream> {
+pub fn expand_event(input: Declaration) -> Result<TokenStream, venial::Error> {
     let ruma_common = import_ruma_common();
 
     let ident = &input.ident;
     let (kind, var) = to_kind_variation(ident).ok_or_else(|| {
-        syn::Error::new_spanned(ident, "not a valid ruma event struct identifier")
+        venial::Error::new_at_tokens(ident, "not a valid ruma event struct identifier")
     })?;
 
-    let fields: Vec<_> = if let Data::Struct(DataStruct {
-        fields: Fields::Named(FieldsNamed { named, .. }),
+    let fields: Vec<_> = if let Declaration::Struct(Struct {
+        fields: StructFields::Named(NamedStructFields { fields, .. }),
         ..
-    }) = &input.data
+    }) = &input
     {
-        if !named.iter().any(|f| f.ident.as_ref().unwrap() == "content") {
-            return Err(syn::Error::new(
+        if !fields.iter().any(|(f, _)| f.name == "content") {
+            return Err(venial::Error::new_at_span(
                 Span::call_site(),
                 "struct must contain a `content` field",
             ));
         }
 
-        named.iter().cloned().collect()
+        fields.iter().cloned().map(|(f, _)| f).collect()
     } else {
-        return Err(syn::Error::new_spanned(
-            input.ident,
+        return Err(venial::Error::new_at_tokens(
+            input.name(),
             "the `Event` derive only supports structs with named fields",
         ));
     };
@@ -44,7 +44,7 @@ pub fn expand_event(input: DeriveInput) -> syn::Result<TokenStream> {
     res.extend(expand_serialize_event(&input, var, &fields, &ruma_common));
     res.extend(
         expand_deserialize_event(&input, kind, var, &fields, &ruma_common)
-            .unwrap_or_else(syn::Error::into_compile_error),
+            .unwrap_or_else(venial::Error::to_compile_error),
     );
 
     if var.is_sync() {
@@ -65,9 +65,9 @@ pub fn expand_event(input: DeriveInput) -> syn::Result<TokenStream> {
 }
 
 fn expand_serialize_event(
-    input: &DeriveInput,
+    input: &Declaration,
     var: EventKindVariation,
-    fields: &[Field],
+    fields: &[NamedField],
     ruma_common: &TokenStream,
 ) -> TokenStream {
     let serde = quote! { #ruma_common::exports::serde };
@@ -77,7 +77,7 @@ fn expand_serialize_event(
     let serialize_fields: Vec<_> = fields
         .iter()
         .map(|field| {
-            let name = field.ident.as_ref().unwrap();
+            let name = field.name;
             if name == "content" && var.is_redacted() {
                 quote! {
                     if #ruma_common::events::RedactedEventContent::has_serialize_fields(&self.content) {
@@ -94,7 +94,7 @@ fn expand_serialize_event(
                 let name_s = name.to_string();
                 match &field.ty {
                     syn::Type::Path(syn::TypePath { path: syn::Path { segments, .. }, .. })
-                        if segments.last().unwrap().ident == "Option" =>
+                        if segments.last().unwrap().name == "Option" =>
                     {
                         quote! {
                             if let Some(content) = self.#name.as_ref() {
@@ -133,12 +133,12 @@ fn expand_serialize_event(
 }
 
 fn expand_deserialize_event(
-    input: &DeriveInput,
+    input: &Declaration,
     kind: EventKind,
     var: EventKindVariation,
-    fields: &[Field],
+    fields: &[NamedField],
     ruma_common: &TokenStream,
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     let serde = quote! { #ruma_common::exports::serde };
     let serde_json = quote! { #ruma_common::exports::serde_json };
 
@@ -147,7 +147,7 @@ fn expand_deserialize_event(
     let content_type = &fields
         .iter()
         // we also know that the fields are named and have an ident
-        .find(|f| f.ident.as_ref().unwrap() == "content")
+        .find(|f| f.name == "content")
         .unwrap()
         .ty;
 
@@ -157,15 +157,15 @@ fn expand_deserialize_event(
     let enum_variants: Vec<_> = fields
         .iter()
         .map(|field| {
-            let name = field.ident.as_ref().unwrap();
-            to_camel_case(name)
+            let name = field.name;
+            to_camel_case(&name)
         })
         .collect();
 
     let deserialize_var_types: Vec<_> = fields
         .iter()
         .map(|field| {
-            let name = field.ident.as_ref().unwrap();
+            let name = field.name;
             if name == "content" || (name == "unsigned" && has_prev_content(kind, var)) {
                 if is_generic {
                     quote! { ::std::boxed::Box<#serde_json::value::RawValue> }
@@ -253,7 +253,7 @@ fn expand_deserialize_event(
                 }
             })
         })
-        .collect::<syn::Result<_>>()?;
+        .collect::<Result<_, venial::Error>>()?;
 
     let field_names: Vec<_> = fields.iter().flat_map(|f| &f.ident).collect();
 
@@ -352,15 +352,15 @@ fn expand_deserialize_event(
 }
 
 fn expand_redact_event(
-    input: &DeriveInput,
+    input: &Declaration,
     kind: EventKind,
     var: EventKindVariation,
-    fields: &[Field],
+    fields: &[NamedField],
     ruma_common: &TokenStream,
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     let redacted_type = kind.to_event_ident(var.to_redacted())?;
     let redacted_event_type_enum = kind.to_event_type_enum();
-    let ident = &input.ident;
+    let ident = &input.name;
 
     let mut generics = input.generics.clone();
     if generics.params.is_empty() {
@@ -435,16 +435,16 @@ fn expand_redact_event(
 }
 
 fn expand_sync_from_into_full(
-    input: &DeriveInput,
+    input: &Declaration,
     kind: EventKind,
     var: EventKindVariation,
-    fields: &[Field],
+    fields: &[NamedField],
     ruma_common: &TokenStream,
-) -> syn::Result<TokenStream> {
+) -> Result<TokenStream, venial::Error> {
     let ident = &input.ident;
     let full_struct = kind.to_event_ident(var.to_full())?;
     let (impl_generics, ty_gen, where_clause) = input.generics.split_for_impl();
-    let fields: Vec<_> = fields.iter().flat_map(|f| &f.ident).collect();
+    let fields: Vec<_> = fields.iter().flat_map(|f| &f.name).collect();
 
     Ok(quote! {
         #[automatically_derived]
@@ -474,7 +474,7 @@ fn expand_sync_from_into_full(
     })
 }
 
-fn expand_eq_ord_event(input: &DeriveInput) -> TokenStream {
+fn expand_eq_ord_event(input: &Declaration) -> TokenStream {
     let ident = &input.ident;
     let (impl_gen, ty_gen, where_clause) = input.generics.split_for_impl();
 

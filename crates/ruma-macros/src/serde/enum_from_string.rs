@@ -1,13 +1,12 @@
 use proc_macro2::{Span, TokenStream};
 use quote::{quote, ToTokens};
-use syn::{Fields, FieldsNamed, FieldsUnnamed, ItemEnum};
 
 use super::{
     attr::EnumAttrs,
     util::{get_enum_attributes, get_rename_rule},
 };
 
-pub fn expand_enum_from_string(input: &ItemEnum) -> syn::Result<TokenStream> {
+pub fn expand_enum_from_string(input: &ItemEnum) -> Result<TokenStream, venial::Error> {
     let enum_name = &input.ident;
     let rename_rule = get_rename_rule(input)?;
     let mut fallback = None;
@@ -25,14 +24,14 @@ pub fn expand_enum_from_string(input: &ItemEnum) -> syn::Result<TokenStream> {
                 (None, Fields::Named(FieldsNamed { named: fields, .. }))
                 | (None, Fields::Unnamed(FieldsUnnamed { unnamed: fields, .. })) => {
                     if fields.len() != 1 {
-                        return Err(syn::Error::new_spanned(
+                        return Err(venial::Error::new_at_tokens(
                             v,
                             "multiple data fields are not supported",
                         ));
                     }
 
                     if fallback.is_some() {
-                        return Err(syn::Error::new_spanned(
+                        return Err(venial::Error::new_at_tokens(
                             v,
                             "multiple data-carrying variants are not supported",
                         ));
@@ -53,7 +52,7 @@ pub fn expand_enum_from_string(input: &ItemEnum) -> syn::Result<TokenStream> {
                     None
                 }
                 (Some(_), _) => {
-                    return Err(syn::Error::new_spanned(
+                    return Err(venial::Error::new_at_tokens(
                         v,
                         "ruma_enum(rename) is only allowed on unit variants",
                     ));
@@ -67,13 +66,16 @@ pub fn expand_enum_from_string(input: &ItemEnum) -> syn::Result<TokenStream> {
                 }
             }))
         })
-        .collect::<syn::Result<_>>()?;
+        .collect::<Result<_, venial::Error>>()?;
 
     // Remove `None` from the iterator to avoid emitting consecutive commas in repetition
     let branches = branches.iter().flatten();
 
     if fallback.is_none() {
-        return Err(syn::Error::new(Span::call_site(), "required fallback variant not found"));
+        return Err(venial::Error::new_at_span(
+            Span::call_site(),
+            "required fallback variant not found",
+        ));
     }
 
     Ok(quote! {

@@ -1,7 +1,4 @@
-use syn::{
-    parse::{Parse, ParseStream},
-    LitStr, Token,
-};
+use crate::util::LitStr;
 
 use super::case::RenameRule;
 
@@ -23,7 +20,7 @@ pub enum Attr {
 }
 
 impl Parse for Attr {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let lookahead = input.lookahead1();
         if lookahead.peek(kw::alias) {
             let _: kw::alias = input.parse()?;
@@ -48,14 +45,14 @@ impl RenameAllAttr {
 }
 
 impl Parse for RenameAllAttr {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self, venial::Error> {
         let _: kw::rename_all = input.parse()?;
         let _: Token![=] = input.parse()?;
         let s: LitStr = input.parse()?;
         Ok(Self(
             s.value()
                 .parse()
-                .map_err(|_| syn::Error::new_spanned(s, "invalid value for rename_all"))?,
+                .map_err(|_| venial::Error::new_at_tokens(s, "invalid value for rename_all"))?,
         ))
     }
 }

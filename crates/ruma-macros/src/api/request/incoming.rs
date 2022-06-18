@@ -1,6 +1,5 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::Field;
 
 use super::{Request, RequestField};
 use crate::api::auth_scheme::AuthScheme;
